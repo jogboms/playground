@@ -43,48 +43,63 @@ extension on num {
   double get radians => (this * math.pi) / 180.0;
 }
 
-// https://math.stackexchange.com/questions/377169/going-from-a-value-inside-1-1-to-a-value-in-another-range/377174#377174
-double interpolate({
-  double input,
+// https://stackoverflow.com/a/55088673/8236404
+double Function(double input) interpolate({
   double inputMin = 0,
   double inputMax = 1,
   double outputMin = 0,
   double outputMax = 1,
-  Curve curve = Curves.decelerate,
 }) {
-  double result = input;
+  //range check
+  if (inputMin == inputMax) {
+    print("Warning: Zero input range");
+    return null;
+  }
 
   if (outputMin == outputMax) {
-    return outputMin;
+    print("Warning: Zero output range");
+    return null;
   }
 
-  if (inputMin == inputMax) {
-    if (input <= inputMin) {
-      return outputMin;
+  //check reversed input range
+  var reverseInput = false;
+  final oldMin = math.min(inputMin, inputMax);
+  final oldMax = math.max(inputMin, inputMax);
+  if (oldMin != inputMin) {
+    reverseInput = true;
+  }
+
+  //check reversed output range
+  var reverseOutput = false;
+  final newMin = math.min(outputMin, outputMax);
+  final newMax = math.max(outputMin, outputMax);
+  if (newMin != outputMin) {
+    reverseOutput = true;
+  }
+
+  // Hot-rod the most common case.
+  if (!reverseInput && !reverseOutput) {
+    final dNew = newMax - newMin;
+    final dOld = oldMax - oldMin;
+    return (double x) {
+      return ((x - oldMin) * dNew / dOld) + newMin;
+    };
+  }
+
+  return (double x) {
+    double portion;
+    if (reverseInput) {
+      portion = (oldMax - x) * (newMax - newMin) / (oldMax - oldMin);
+    } else {
+      portion = (x - oldMin) * (newMax - newMin) / (oldMax - oldMin);
     }
-    return outputMax;
-  }
+    double result;
+    if (reverseOutput) {
+      result = newMax - portion;
+    } else {
+      result = portion + newMin;
+    }
 
-  // Input Range
-  if (inputMin == -double.infinity) {
-    result = -result;
-  } else if (inputMax == double.infinity) {
-    result = result - inputMin;
-  } else {
-    result = (result - inputMin) / (inputMax - inputMin);
-  }
-
-  // Easing
-  result = curve.transform(result);
-
-  // Output Range
-  if (outputMin == -double.infinity) {
-    result = -result;
-  } else if (outputMax == double.infinity) {
-    result = result + outputMin;
-  } else {
-    result = result * (outputMax - outputMin) + outputMin;
-  }
-
-  return result;
+    return result;
+  };
 }

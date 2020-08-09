@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -25,215 +26,164 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+  ValueNotifier<double> animation = ValueNotifier(0.0);
+  Ticker ticker;
+
+  @override
+  void initState() {
+    super.initState();
+
+    ticker = createTicker((elapsed) {
+      animation.value += elapsed.inMicroseconds;
+    });
+
+    ticker.start();
+  }
+
+  @override
+  void dispose() {
+    ticker.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: primaryAccent),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: BallGenerator(),
-      ),
+      home: Builder(builder: (context) {
+        return Scaffold(
+          body: Center(
+            child: CustomPaint(
+              size: Size.square(MediaQuery.of(context).size.shortestSide - 32.0),
+              painter: TimesTablePainter(animation: animation),
+            ),
+          ),
+        );
+      }),
     );
   }
 }
 
-class BallGenerator extends StatefulWidget {
-  const BallGenerator({Key key}) : super(key: key);
+class TimesTablePainter extends CustomPainter {
+  TimesTablePainter({@required ValueListenable<double> animation}) : super(repaint: animation);
+
+  double multiplier = 0.0;
+  double count = 0.0;
+  Color color = Colors.white;
+
+  static double multiplierStep = .001;
+  static double countStep = .1;
 
   @override
-  _BallGeneratorState createState() => _BallGeneratorState();
+  void paint(ui.Canvas canvas, ui.Size size) {
+    final bounds = Offset.zero & size;
+    final radius = bounds.width / 2;
+    final center = bounds.center;
+    final strokeWidth = 2.0;
+
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..strokeWidth = strokeWidth
+        ..color = color.withOpacity(.24)
+        ..style = PaintingStyle.stroke,
+    );
+
+    final angleMapper = interpolate(inputMax: count, outputMax: 360);
+    for (double i = 0.0; i < count; i++) {
+      final position = _polarOffset(angleMapper(i), center, radius);
+      canvas.drawCircle(position, strokeWidth, Paint()..color = Color.alphaBlend(color, Colors.grey));
+
+      final end = _polarOffset(angleMapper((i * multiplier) % count), center, radius);
+      canvas.drawLine(
+        position,
+        end,
+        Paint()
+          ..color = color.withOpacity(.4)
+          ..strokeWidth = strokeWidth,
+      );
+    }
+
+    if ((multiplier + multiplierStep).toInt() > multiplier.toInt()) {
+      color = Color(math.Random().nextInt(0xFFFFFFFF));
+    }
+    multiplier += multiplierStep;
+    count += countStep;
+  }
+
+  Offset _polarOffset(double angle, Offset center, double radius) {
+    return Offset.fromDirection((angle * math.pi / 180) - math.pi / 2, radius) + center;
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
-class _BallGeneratorState extends State<BallGenerator> with SingleTickerProviderStateMixin {
-  @override
-  Widget build(BuildContext context) {
-    return BallsWidget(vsync: this);
-  }
-}
-
-class BallsWidget extends LeafRenderObjectWidget {
-  const BallsWidget({
-    Key key,
-    @required this.vsync,
-  }) : super(key: key);
-
-  final TickerProvider vsync;
-
-  @override
-  RenderBalls createRenderObject(BuildContext context) {
-    return RenderBalls(vsync: vsync);
-  }
-}
-
-class RenderBalls extends RenderProxyBox {
-  RenderBalls({
-    @required this.vsync,
-  });
-
-  final TickerProvider vsync;
-
-  int _elapsedTimeInMicroSeconds = 0;
-
-  Ticker _ticker;
-
-  final _colors = [
-    Color(0xFFCCCC22),
-    Color(0xFF2266AA),
-    Color(0xFFAAEE11),
-    Color(0xFFCC6666),
-  ];
-
-  final pumpIntervalInSeconds = 10;
-
-  @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    _ticker = vsync.createTicker((Duration elapsed) {
-      _elapsedTimeInMicroSeconds = elapsed.inMicroseconds;
-//      if (_count == pumpIntervalInSeconds && hasSize) {
-//        print(["PUMP"]);
-//      pump();
-//      }
-      markNeedsPaint();
-    });
-    _ticker.start();
+// https://stackoverflow.com/a/55088673/8236404
+double Function(double input) interpolate({
+  double inputMin = 0,
+  double inputMax = 1,
+  double outputMin = 0,
+  double outputMax = 1,
+}) {
+  //range check
+  if (inputMin == inputMax) {
+    print("Warning: Zero input range");
+    return null;
   }
 
-  @override
-  void detach() {
-    _ticker.stop();
-    _ticker.dispose();
-    super.detach();
+  if (outputMin == outputMax) {
+    print("Warning: Zero output range");
+    return null;
   }
 
-  void restartTicker() {
-    if (_ticker.isActive) {
-      _ticker.stop();
-    }
-    _ticker.start();
+  //check reversed input range
+  var reverseInput = false;
+  final oldMin = math.min(inputMin, inputMax);
+  final oldMax = math.max(inputMin, inputMax);
+  if (oldMin != inputMin) {
+    reverseInput = true;
   }
 
-  int maxTimeTaken;
-  List<Ball> balls;
-
-  void pump() {
-    const radius = 15.0;
-    const minDelay = 0.0;
-    const maxDelay = 0.0;
-    const minVelocity = 1.0;
-    const maxVelocity = 50.0;
-    const minPixelsPerSecond = minVelocity * 60;
-    maxTimeTaken = ((size.height * 2 / minPixelsPerSecond) + maxDelay).ceil();
-
-    final x = random(radius, size.width - radius);
-    final dy = random(minVelocity, maxVelocity);
-    balls.add(Ball(
-      origin: Offset(size.width / 2, size.height - radius * 2),
-      bounds: Offset.zero & size,
-      velocity: Offset.fromDirection(math.pi / 4, dy),
-      delay: random(minDelay, maxDelay),
-      radius: radius,
-      color: _colors[random(0.0, (_colors.length - 1).toDouble()).round()],
-    ));
+  //check reversed output range
+  var reverseOutput = false;
+  final newMin = math.min(outputMin, outputMax);
+  final newMax = math.max(outputMin, outputMax);
+  if (newMin != outputMin) {
+    reverseOutput = true;
   }
 
-  @override
-  void performLayout() {
-    final _size = constraints.loosen().biggest;
-    if (_size == (hasSize ? size : 0.0)) {
-      return;
-    }
-    balls = [];
-    size = _size;
-
-    for (int i = 0; i < 1; i++) {
-      pump();
-    }
+  // Hot-rod the most common case.
+  if (!reverseInput && !reverseOutput) {
+    final dNew = newMax - newMin;
+    final dOld = oldMax - oldMin;
+    return (double x) {
+      return ((x - oldMin) * dNew / dOld) + newMin;
+    };
   }
 
-  @override
-  void paint(PaintingContext context, ui.Offset offset) {
-    for (int i = 0; i < balls.length; i++) {
-      final ball = balls[i]..tick(_elapsedTimeInMicroSeconds);
-      drawBall(context.canvas, ball, offset);
-    }
-  }
-
-  void drawBall(Canvas canvas, Ball ball, Offset offset) {
-    canvas.drawCircle(offset + ball.position, ball.radius, Paint()..color = ball.color);
-  }
-}
-
-class Ball {
-  Ball({
-    @required this.origin,
-    @required Rect bounds,
-    @required this.velocity,
-    @required this.radius,
-    @required this.delay,
-    @required this.color,
-  })  : position = origin,
-        acceleration = Offset(0, .1),
-        this.bounds = bounds.deflate(radius),
-        dy = velocity,
-        gravity = Offset(0, 0.001),
-        friction = .98;
-
-  final Offset origin;
-  final Rect bounds;
-  final Offset velocity;
-  final double radius;
-  final double delay;
-  final double friction;
-  final Offset gravity;
-  final Color color;
-  final Offset acceleration;
-
-  Offset dy;
-  Offset position;
-
-  void drop() {
-    if (!bounds.contains(position)) {
-      dy = Offset.fromDirection(
-            dy.direction + math.pi / 2,
-            dy.distance,
-          ) *
-          friction;
+  return (double x) {
+    double portion;
+    if (reverseInput) {
+      portion = (oldMax - x) * (newMax - newMin) / (oldMax - oldMin);
     } else {
-//      dy += acceleration + gravity;
+      portion = (x - oldMin) * (newMax - newMin) / (oldMax - oldMin);
+    }
+    double result;
+    if (reverseOutput) {
+      result = newMax - portion;
+    } else {
+      result = portion + newMin;
     }
 
-    position += dy;
-
-//    position = Offset(
-//      position.dx.clamp(bounds.left, bounds.right),
-////      position.dx.between(bounds.left, bounds.right),
-//      position.dy.clamp(bounds.top, bounds.bottom),
-//    );
-
-    print([position, bounds, dy, !bounds.contains(position)]);
-  }
-
-  double startTimeInSeconds;
-
-  void tick(int elapsedTimeInMicroSeconds) {
-    final elapsedTimeInSeconds = elapsedTimeInMicroSeconds / Duration.microsecondsPerSecond;
-    startTimeInSeconds ??= elapsedTimeInSeconds;
-    if ((elapsedTimeInSeconds - startTimeInSeconds) >= delay) {
-      drop();
-    }
-  }
-}
-
-extension on num {
-  double get radians => this * math.pi / 180;
-
-  double between(double min, double max) {
-    return math.max(math.min(max, this.toDouble()), min);
-  }
-}
-
-double random(double min, double max) {
-  return (math.Random().nextDouble() * max).between(min, max);
+    return result;
+  };
 }
