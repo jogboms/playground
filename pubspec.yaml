@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.3
+  shake: ^0.1.0
 
 dev_dependencies:
   flutter_test:
