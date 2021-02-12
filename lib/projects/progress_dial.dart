@@ -66,11 +66,11 @@ class RenderProgressDial extends RenderBox {
   static final startAngle = -90.radians;
   static final shadowColor = Color(0xFF272A39);
   static final labelColor = Colors.white30;
-  static final titleFontRadius = 30.0;
-  static final labelFontRadius = titleFontRadius / 4.5;
+  static const titleFontRadius = 30.0;
+  static const labelFontRadius = titleFontRadius / 4.5;
 
-  static final minRadius = 100.0;
-  static final maxRadius = 180.0;
+  static const minRadius = 100.0;
+  static const maxRadius = 180.0;
 
   ValueChanged<int> _onChanged;
 
@@ -113,7 +113,7 @@ class RenderProgressDial extends RenderBox {
     markNeedsPaint();
   }
 
-  _onSelect(int value) {
+  void _onSelect(int value) {
     if (value == _value) {
       return;
     }
@@ -164,8 +164,8 @@ class RenderProgressDial extends RenderBox {
 
     // Base
     final outerRadius = segment * 6;
-    final division = 10;
-    for (int i = 0; i < division; i++) {
+    const division = 10;
+    for (var i = 0; i < division; i++) {
       final it = (i * totalAngle.degrees / division).radians;
       _drawParagraph(
         canvas,
@@ -269,14 +269,14 @@ class RenderProgressDial extends RenderBox {
     );
     _drawParagraph(
       canvas,
-      "C",
+      'C',
       offset: titleRect.topRight + Offset(labelFontRadius * 2, labelFontRadius * 2),
       color: labelColor,
       fontSize: labelFontRadius * 2,
     );
     _drawParagraph(
       canvas,
-      "ROOM\nTEMPERATURE",
+      'ROOM\nTEMPERATURE',
       offset: center + Offset(0, 16.0),
       color: labelColor,
       fontSize: labelFontRadius * 2,
