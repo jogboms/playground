@@ -5,22 +5,24 @@ import 'projects/bed_time.dart';
 import 'projects/edge_detection.dart';
 import 'projects/gradient_range_selector.dart';
 import 'projects/hour_minute_dial.dart';
+import 'projects/measure_slider.dart';
 import 'projects/more_balls_generator.dart';
 import 'projects/progress_dial.dart';
 import 'projects/slide_to_action.dart';
 
 class Projects extends StatelessWidget {
-  static get route => MaterialPageRoute(builder: (_) => Projects());
+  static MaterialPageRoute<void> get route => MaterialPageRoute(builder: (_) => Projects());
 
   final items = [
-    MapEntry("Hour/Minute Dial", (_) => HourMinuteDial()),
-    MapEntry("Bed Time", (_) => BedTime()),
-    MapEntry("Progress Dial", (_) => ProgressDial()),
-    MapEntry("Slide To Action", (_) => SlideToAction()),
-    MapEntry("Gradient Range Selector", (_) => GradientRangeSelector()),
-    MapEntry("Heart Of Maths", (_) => HeartOfMaths()),
-    MapEntry("Edge Detection", (_) => EdgeDetection()),
-    MapEntry("Balls Generator", (_) => BallsGenerator()),
+    MapEntry<String, WidgetBuilder>('Hour/Minute Dial', (_) => HourMinuteDial()),
+    MapEntry<String, WidgetBuilder>('Bed Time', (_) => BedTime()),
+    MapEntry<String, WidgetBuilder>('Measure Slider', (_) => MeasureSlider()),
+    MapEntry<String, WidgetBuilder>('Progress Dial', (_) => ProgressDial()),
+    MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
+    MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),
+    MapEntry<String, WidgetBuilder>('Heart Of Maths', (_) => HeartOfMaths()),
+    MapEntry<String, WidgetBuilder>('Edge Detection', (_) => EdgeDetection()),
+    MapEntry<String, WidgetBuilder>('Balls Generator', (_) => BallsGenerator()),
   ];
 
   @override
@@ -40,7 +42,7 @@ class Projects extends StatelessWidget {
             dense: true,
             title: Text(item.key, style: TextStyle(color: Colors.white)),
             onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: item.value));
+              Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: item.value));
             },
           );
         },

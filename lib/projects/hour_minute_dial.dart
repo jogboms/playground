@@ -83,7 +83,7 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
                   valueListenable: valueNotifier,
                   builder: (_, TimeValue time, __) {
                     return Text(
-                      "${time.hour}".padLeft(2, "0") + ":" + "${time.minute}".padLeft(2, "0"),
+                      '${time.hour}'.padLeft(2, '0') + ':' + '${time.minute}'.padLeft(2, '0'),
                       style: Theme.of(context)
                           .textTheme
                           .headline3
@@ -110,7 +110,8 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
 }
 
 class TimeOfDayWidget extends LeafRenderObjectWidget {
-  TimeOfDayWidget({Key key, @required this.vsync, @required this.value, @required this.onChanged}) : super(key: key);
+  const TimeOfDayWidget({Key key, @required this.vsync, @required this.value, @required this.onChanged})
+      : super(key: key);
 
   final TickerProvider vsync;
   final TimeOfDayType value;
@@ -229,7 +230,7 @@ class TimeOfDayRenderBox extends RenderBox {
   }
 
   void _onTapUp(TapUpDetails details) {
-    var offset = globalToLocal(details.globalPosition);
+    final offset = globalToLocal(details.globalPosition);
     _animate(Offset.zero, offset.dx ~/ (size.width / 2));
   }
 
@@ -269,8 +270,8 @@ class TimeOfDayRenderBox extends RenderBox {
   @override
   void paint(PaintingContext context, ui.Offset offset) {
     final radius = size.height / 2;
-    final deltaDy = -2;
-    final rect = (offset & size);
+    const deltaDy = -2;
+    final rect = offset & size;
     final rrect = RRect.fromRectAndRadius(
       Rect.fromLTRB(rect.left, rect.top - deltaDy, rect.right, rect.bottom + deltaDy),
       Radius.circular(radius),
@@ -286,14 +287,14 @@ class TimeOfDayRenderBox extends RenderBox {
     final derivedFontSize = size.height * 1 / 3;
     _drawParagraph(
       context.canvas,
-      "AM",
+      'AM',
       offset: _deriveCenterFromIndex(0),
       fontSize: derivedFontSize,
       color: _selectedIndex == 0 ? selectedFontColor : fontColor,
     );
     _drawParagraph(
       context.canvas,
-      "PM",
+      'PM',
       offset: _deriveCenterFromIndex(1),
       fontSize: derivedFontSize,
       color: _selectedIndex == 1 ? selectedFontColor : fontColor,
@@ -314,7 +315,7 @@ class TimeOfDayRenderBox extends RenderBox {
 }
 
 class DialWidget extends LeafRenderObjectWidget {
-  DialWidget({Key key, @required this.onChanged, @required this.vsync, @required this.time}) : super(key: key);
+  const DialWidget({Key key, @required this.onChanged, @required this.vsync, @required this.time}) : super(key: key);
 
   final TimeValueChanged onChanged;
   final TickerProvider vsync;
@@ -412,7 +413,7 @@ class DialItemRenderBox extends RenderBox {
   }
 
   @override
-  get sizedByParent => true;
+  bool get sizedByParent => true;
 
   @override
   ui.Size computeDryLayout(BoxConstraints constraints) {
@@ -509,7 +510,7 @@ class DialItemRenderBox extends RenderBox {
     markNeedsPaint();
   }
 
-  _onSelect(int value) {
+  void _onSelect(int value) {
     if (value == _value) {
       return;
     }
@@ -553,7 +554,7 @@ class DialItemRenderBox extends RenderBox {
 
     final rotationAngleOffset = 270.radians;
     final startingAngleOffset = 90.radians;
-    for (int i = 0; i < divisions; i++) {
+    for (var i = 0; i < divisions; i++) {
       canvas.save();
 
       final currentAngle = startingAngleOffset - ((i * totalAngle / divisions) + _currentAngle);
@@ -620,7 +621,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
     @required TimeValue time,
   }) : _onChanged = onChanged {
     add(DialItemRenderBox(
-      debugLabel: "Hour",
+      debugLabel: 'Hour',
       vsync: vsync,
       padding: 16,
       color: Color(0x00000000),
@@ -631,7 +632,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       onChanged: _onChangedHour,
     ));
     add(DialItemRenderBox(
-      debugLabel: "Minute",
+      debugLabel: 'Minute',
       vsync: vsync,
       padding: 24,
       color: Color(0x1C000000),
@@ -661,12 +662,12 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
     _time = value;
   }
 
-  _onChangedHour(int value) {
+  void _onChangedHour(int value) {
     _time = TimeValue(value, _time.minute);
     _onChanged(_time);
   }
 
-  _onChangedMinute(int value) {
+  void _onChangedMinute(int value) {
     _time = TimeValue(_time.hour, value);
     _onChanged(_time);
   }
@@ -681,9 +682,9 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
   Size computeSize(BoxConstraints constraints) {
     final tempFirstChildRadius = constraints.biggest.width / 2;
     final firstChildRadius = math.min(tempFirstChildRadius, 240.0);
-    final horizontalOffset = 16.0;
+    const horizontalOffset = 16.0;
 
-    DialItemRenderBox child = firstChild;
+    var child = firstChild;
     double previousRadius;
     double firstRadius;
     Offset firstCenter;
@@ -717,7 +718,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
-    DialItemRenderBox child = lastChild;
+    var child = lastChild;
     while (child != null) {
       if (child.hitTest(result, position: position)) {
         return true;
@@ -740,7 +741,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       Paint()..color = Colors.black26,
     );
 
-    DialItemRenderBox child = firstChild;
+    var child = firstChild;
     while (child != null) {
       final childParentData = child.parentData as DialParentData;
       final childOffset = childParentData.offset + offset;

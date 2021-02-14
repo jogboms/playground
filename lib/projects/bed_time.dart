@@ -468,14 +468,14 @@ class RenderSlideButton extends RenderBox {
   }
 
   Rect _drawParagraph(
-      Canvas canvas,
-      String text, {
-        @required Offset offset,
-        @required Color color,
-        @required double fontSize,
-        String fontFamily,
-        FontWeight fontWeight,
-      }) {
+    Canvas canvas,
+    String text, {
+    @required Offset offset,
+    @required Color color,
+    @required double fontSize,
+    String fontFamily,
+    FontWeight fontWeight,
+  }) {
     final builder = ui.ParagraphBuilder(ui.ParagraphStyle(textAlign: TextAlign.center))
       ..pushStyle(ui.TextStyle(
         fontSize: fontSize,
@@ -517,11 +517,11 @@ class RenderSlideButton extends RenderBox {
 
 extension on TimeOfDay {
   double get fraction {
-    return (hour + (minute / TimeOfDay.minutesPerHour));
+    return hour + (minute / TimeOfDay.minutesPerHour);
   }
 
   String get periodShort {
-    return period.toString().split(".").last;
+    return period.toString().split('.').last;
   }
 
   double difference(TimeOfDay other) {

@@ -17,7 +17,11 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(),
+      body: Container(
+        child: Center(
+          child: Text('Shake device to see projects'),
+        ),
+      ),
     );
   }
 }

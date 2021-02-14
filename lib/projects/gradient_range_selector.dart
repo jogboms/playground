@@ -23,20 +23,20 @@ class GradientRangeSelector extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      "${value.a.toStringAsFixed(1)}",
-                      style: Theme.of(context).textTheme.display3.copyWith(color: Colors.white),
+                      '${value.a.toStringAsFixed(1)}',
+                      style: Theme.of(context).textTheme.headline2.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
                   Text(
-                    "-",
-                    style: Theme.of(context).textTheme.body1.copyWith(color: Colors.white),
+                    '-',
+                    style: Theme.of(context).textTheme.bodyText1.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                   Expanded(
                     child: Text(
-                      "${value.b.toStringAsFixed(1)}",
-                      style: Theme.of(context).textTheme.display3.copyWith(color: Colors.white),
+                      '${value.b.toStringAsFixed(1)}',
+                      style: Theme.of(context).textTheme.headline3.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -58,8 +58,8 @@ class GradientRangeSelector extends StatelessWidget {
   }
 }
 
-typedef void RangeSliderCallback(double lowerValue, double upperValue);
-typedef String LabelBuilder(double value);
+typedef RangeSliderCallback = void Function(double lowerValue, double upperValue);
+typedef LabelBuilder = String Function(double value);
 
 class RangeSlider extends LeafRenderObjectWidget {
   const RangeSlider({
@@ -244,7 +244,7 @@ class _RenderRangeSlider extends RenderBox {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final double valueDelta = details.primaryDelta / _trackRect.width;
+    final valueDelta = details.primaryDelta / _trackRect.width;
     _currentDragValue += valueDelta;
     _onRangeChanged(_currentDragValue.clamp(_minDragValue, _maxDragValue));
   }
@@ -358,10 +358,10 @@ class _RenderRangeSlider extends RenderBox {
   }
 
   void _paintTickMarks(Canvas canvas, Rect rect) {
-    final double spacing = rect.width / _divisions;
-    for (int i = 0; i <= _divisions; i++) {
+    final spacing = rect.width / _divisions;
+    for (var i = 0; i <= _divisions; i++) {
       final _offset = rect.centerLeft + Offset(spacing * i, 0);
-      final tick = Offset(0, ((i == 0 || i % 5 == 0 || i == _divisions) ? _maxTickLength : _maxTickLength * .65));
+      final tick = Offset(0, (i == 0 || i % 5 == 0 || i == _divisions) ? _maxTickLength : _maxTickLength * .65);
       canvas.drawLine(
         _offset,
         _offset + tick,
