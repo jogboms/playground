@@ -9,6 +9,7 @@ import 'projects/hour_minute_dial.dart';
 import 'projects/measure_slider.dart';
 import 'projects/more_balls_generator.dart';
 import 'projects/progress_dial.dart';
+import 'projects/slide_color_picker.dart';
 import 'projects/slide_to_action.dart';
 
 class Projects extends StatelessWidget {
@@ -21,6 +22,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Progress Dial', (_) => ProgressDial()),
     MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => GaugeMeter()),
     MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
+    MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => SlideColorPicker()),
     MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),
     MapEntry<String, WidgetBuilder>('Heart Of Maths', (_) => HeartOfMaths()),
     MapEntry<String, WidgetBuilder>('Edge Detection', (_) => EdgeDetection()),
