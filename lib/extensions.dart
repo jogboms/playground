@@ -76,3 +76,11 @@ class Pair<A, B> {
   final A a;
   final B b;
 }
+
+class Pair2<A, B, C> {
+  const Pair2(this.a, this.b, this.c);
+
+  final A a;
+  final B b;
+  final C c;
+}

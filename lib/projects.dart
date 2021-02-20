@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'projects/balls_generator.dart';
 import 'projects/bed_time.dart';
 import 'projects/edge_detection.dart';
+import 'projects/gauge_meter.dart';
 import 'projects/gradient_range_selector.dart';
 import 'projects/hour_minute_dial.dart';
 import 'projects/measure_slider.dart';
@@ -18,6 +19,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Bed Time', (_) => BedTime()),
     MapEntry<String, WidgetBuilder>('Measure Slider', (_) => MeasureSlider()),
     MapEntry<String, WidgetBuilder>('Progress Dial', (_) => ProgressDial()),
+    MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => GaugeMeter()),
     MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
     MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),
     MapEntry<String, WidgetBuilder>('Heart Of Maths', (_) => HeartOfMaths()),
