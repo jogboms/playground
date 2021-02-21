@@ -13,40 +13,104 @@ class _GaugeMeterState extends State<GaugeMeter> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: CustomPaint(
-          painter: GaugeMeterPainter(
-            value: 30,
-            min: 0,
-            max: 100,
-            divisions: [
-              Pair2(0.33, 'Bad', Color(0xFFFF524F)),
-              Pair2(0.56, 'Average', Color(0xFFFAD64C)),
-              Pair2(0.8, 'Good', Color(0xFFB2FF59)),
-              Pair2(1.0, 'Excellent', Color(0xFF51AD54)),
-            ],
-          ),
-          child: SizedBox.expand(),
+        child: GaugeMeterWidget(
+          value: 30,
+          min: 0,
+          max: 100,
+          divisions: [
+            Pair2(0.33, 'Bad', Color(0xFFFF524F)),
+            Pair2(0.56, 'Average', Color(0xFFFAD64C)),
+            Pair2(0.8, 'Good', Color(0xFFB2FF59)),
+            Pair2(1.0, 'Excellent', Color(0xFF51AD54)),
+          ],
         ),
       ),
     );
   }
 }
 
-class GaugeMeterPainter extends CustomPainter {
-  GaugeMeterPainter({
+class GaugeMeterWidget extends LeafRenderObjectWidget {
+  GaugeMeterWidget({
     @required this.value,
     @required this.min,
     @required this.max,
     this.divisions = const [],
   })  : assert(value >= min && value <= max),
-        assert(divisions.isNotEmpty),
-        currentPercentage = _valueToPercentage(value, min: min, max: max);
+        assert(divisions.isNotEmpty);
 
   final double value;
   final double min;
   final double max;
   final List<Pair2<double, String, Color>> divisions;
-  final double currentPercentage;
+
+  @override
+  RenderGaugeMeter createRenderObject(BuildContext context) {
+    return RenderGaugeMeter(value: value, min: min, max: max, divisions: divisions);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, covariant RenderGaugeMeter renderObject) {
+    renderObject
+      ..value = value
+      ..min = min
+      ..max = max
+      ..divisions = divisions;
+  }
+}
+
+class RenderGaugeMeter extends RenderBox {
+  RenderGaugeMeter({
+    @required double value,
+    @required double min,
+    @required double max,
+    @required List<Pair2<double, String, Color>> divisions,
+  })  : _value = value,
+        _min = min,
+        _max = max,
+        _divisions = divisions,
+        currentPercentage = _valueToPercentage(value, min: min, max: max);
+
+  double currentPercentage;
+
+  double _value;
+
+  set value(double value) {
+    if (value != _value) {
+      return;
+    }
+    _value = value;
+    markNeedsPaint();
+  }
+
+  double _min;
+
+  set min(double min) {
+    if (min != _min) {
+      return;
+    }
+    _min = min;
+    markNeedsPaint();
+  }
+
+  double _max;
+
+  set max(double max) {
+    if (max != _max) {
+      return;
+    }
+    _max = max;
+    markNeedsPaint();
+  }
+
+  List<Pair2<double, String, Color>> _divisions;
+
+  set divisions(List<Pair2<double, String, Color>> divisions) {
+    if (divisions != _divisions) {
+      return;
+    }
+    _divisions = divisions;
+    markNeedsPaint();
+  }
 
   static const cursorColor = Color(0xFF303030);
   static const selectionColor = Color(0xFFFF524F);
@@ -57,7 +121,16 @@ class GaugeMeterPainter extends CustomPainter {
   static final maxSweepAngle = 180.radians;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  bool get sizedByParent => true;
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    return constraints.biggest;
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final canvas = context.canvas;
     final preferredWidth = (size.shortestSide * .9).clamp(200.0, 800.0);
     final bounds = Rect.fromCenter(
       center: size.center(Offset.zero),
@@ -75,8 +148,8 @@ class GaugeMeterPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
     var prevFraction = 0.0;
-    for (var i = 0; i < divisions.length; i++) {
-      final fraction = divisions[i].a;
+    for (var i = 0; i < _divisions.length; i++) {
+      final fraction = _divisions[i].a;
       final offset = i == 0.0 ? 0.0 : spacingAngle;
       canvas.drawArc(
         gaugeBounds,
@@ -123,14 +196,14 @@ class GaugeMeterPainter extends CustomPainter {
     final labelOffset = Offset(0, labelFontSize * 1.85);
     _drawLabel(
       canvas,
-      min.toInt().toString(),
+      _min.toInt().toString(),
       fontSize: labelFontSize,
       center: gaugeBounds.centerLeft + labelOffset,
       color: labelFontColor,
     );
     _drawLabel(
       canvas,
-      max.toInt().toString(),
+      _max.toInt().toString(),
       fontSize: labelFontSize,
       center: gaugeBounds.centerRight + labelOffset,
       color: labelFontColor,
@@ -149,16 +222,11 @@ class GaugeMeterPainter extends CustomPainter {
     // Draw value label
     _drawLabel(
       canvas,
-      value.round().toString(),
+      _value.round().toString(),
       fontSize: gaugeBounds.radius / 2.25,
       center: gaugeBounds.center.translate(0, -gaugeBounds.radius / 3.5),
       color: labelFontColor,
     );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
   }
 
   static double _valueToPercentage(double value, {double min, double max}) {
@@ -166,13 +234,13 @@ class GaugeMeterPainter extends CustomPainter {
   }
 
   Pair<String, Color> _deriveSelectedPair(double value) {
-    for (final item in divisions) {
+    for (final item in _divisions) {
       if (item.a >= value) {
         return Pair(item.b, item.c);
       }
       continue;
     }
-    return Pair(divisions[0].b, divisions[0].c);
+    return Pair(_divisions[0].b, _divisions[0].c);
   }
 
   void _drawLabel(Canvas canvas, String text, {double fontSize, Offset center, Color color}) {
