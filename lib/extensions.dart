@@ -20,17 +20,21 @@ extension DoubleX on double {
 }
 
 extension NumX<T extends num> on T {
+  static double twoPi = math.pi * 2.0;
+
   double get degrees => (this * 180.0) / math.pi;
 
   double get radians => (this * math.pi) / 180.0;
 
   T normalize(T max) => (this % max + max) % max as T;
 
-  double get normalizeAngle => normalize(math.pi * 2.0 as T).toDouble();
+  double get normalizeAngle => normalize(twoPi as T).toDouble();
 
   double subtractAngle(T diff) => (this - diff).normalizeAngle;
 
   double addAngle(T diff) => (this + diff).normalizeAngle;
+
+  double shiftAngle(T shift) => toDouble() + ((-this - shift) / twoPi).ceil() * twoPi;
 
   double between(double min, double max) {
     return math.max(math.min(max, toDouble()), min);
@@ -53,8 +57,8 @@ extension RectX on ui.Rect {
   }
 }
 
-double toAngle(ui.Offset coords, ui.Offset center) {
-  return (coords - center).direction;
+double toAngle(ui.Offset position, ui.Offset center) {
+  return (position - center).direction;
 }
 
 ui.Offset toPolar(ui.Offset center, double radians, double radius) {

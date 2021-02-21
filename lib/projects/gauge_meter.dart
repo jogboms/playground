@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../extensions.dart';
@@ -12,17 +13,23 @@ class _GaugeMeterState extends State<GaugeMeter> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: GaugeMeterWidget(
-          value: 30,
-          min: 0,
-          max: 100,
-          divisions: [
-            Pair2(0.33, 'Bad', Color(0xFFFF524F)),
-            Pair2(0.56, 'Average', Color(0xFFFAD64C)),
-            Pair2(0.8, 'Good', Color(0xFFB2FF59)),
-            Pair2(1.0, 'Excellent', Color(0xFF51AD54)),
-          ],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Center(
+          child: GaugeMeterWidget(
+            value: 30,
+            min: 0,
+            max: 100,
+            divisions: [
+              Pair2(0.33, 'Bad', Color(0xFFFF524F)),
+              Pair2(0.56, 'Average', Color(0xFFFAD64C)),
+              Pair2(0.8, 'Good', Color(0xFFB2FF59)),
+              Pair2(1.0, 'Excellent', Color(0xFF51AD54)),
+            ],
+            onChanged: (value) {
+              print(value);
+            },
+          ),
         ),
       ),
     );
@@ -35,6 +42,7 @@ class GaugeMeterWidget extends LeafRenderObjectWidget {
     @required this.min,
     @required this.max,
     this.divisions = const [],
+    this.onChanged,
   })  : assert(value >= min && value <= max),
         assert(divisions.isNotEmpty);
 
@@ -42,10 +50,11 @@ class GaugeMeterWidget extends LeafRenderObjectWidget {
   final double min;
   final double max;
   final List<Pair2<double, String, Color>> divisions;
+  final ValueChanged<double> onChanged;
 
   @override
   RenderGaugeMeter createRenderObject(BuildContext context) {
-    return RenderGaugeMeter(value: value, min: min, max: max, divisions: divisions);
+    return RenderGaugeMeter(value: value, min: min, max: max, divisions: divisions, onChanged: onChanged);
   }
 
   @override
@@ -54,7 +63,8 @@ class GaugeMeterWidget extends LeafRenderObjectWidget {
       ..value = value
       ..min = min
       ..max = max
-      ..divisions = divisions;
+      ..divisions = divisions
+      ..onChanged = onChanged;
   }
 }
 
@@ -64,18 +74,28 @@ class RenderGaugeMeter extends RenderBox {
     @required double min,
     @required double max,
     @required List<Pair2<double, String, Color>> divisions,
+    ValueChanged<double> onChanged,
   })  : _value = value,
         _min = min,
         _max = max,
         _divisions = divisions,
-        currentPercentage = _valueToPercentage(value, min: min, max: max);
+        _onChanged = onChanged,
+        _currentPercentage = _valueToPercentage(value, min: min, max: max),
+        _currentDragAngle = _valueToAngle(value, min: min, max: max) {
+    drag = PanGestureRecognizer()
+      ..onStart = _onStartDrag
+      ..onUpdate = _onUpdateDrag;
+  }
 
-  double currentPercentage;
+  PanGestureRecognizer drag;
+  Rect gaugeBounds;
+  Rect cursorBounds;
 
+  double _currentPercentage;
   double _value;
 
   set value(double value) {
-    if (value != _value) {
+    if (value == _value) {
       return;
     }
     _value = value;
@@ -85,7 +105,7 @@ class RenderGaugeMeter extends RenderBox {
   double _min;
 
   set min(double min) {
-    if (min != _min) {
+    if (min == _min) {
       return;
     }
     _min = min;
@@ -95,7 +115,7 @@ class RenderGaugeMeter extends RenderBox {
   double _max;
 
   set max(double max) {
-    if (max != _max) {
+    if (max == _max) {
       return;
     }
     _max = max;
@@ -105,11 +125,17 @@ class RenderGaugeMeter extends RenderBox {
   List<Pair2<double, String, Color>> _divisions;
 
   set divisions(List<Pair2<double, String, Color>> divisions) {
-    if (divisions != _divisions) {
+    if (divisions == _divisions) {
       return;
     }
     _divisions = divisions;
     markNeedsPaint();
+  }
+
+  ValueChanged<double> _onChanged;
+
+  set onChanged(ValueChanged<double> onChanged) {
+    _onChanged = onChanged;
   }
 
   static const cursorColor = Color(0xFF303030);
@@ -119,6 +145,34 @@ class RenderGaugeMeter extends RenderBox {
 
   static final angleOffset = -180.radians;
   static final maxSweepAngle = 180.radians;
+
+  double _currentDragAngle = 0.0;
+  Offset _currentDragOffset = Offset.zero;
+
+  void _onStartDrag(DragStartDetails details) {
+    _currentDragOffset = details.localPosition;
+  }
+
+  void _onUpdateDrag(DragUpdateDetails details) {
+    _currentDragOffset += details.delta;
+    final currentAngle = toAngle(_currentDragOffset, gaugeBounds.center) + maxSweepAngle;
+    _currentDragAngle = currentAngle.shiftAngle(maxSweepAngle / 2).clamp(0.0, maxSweepAngle).toDouble();
+    _currentPercentage = _currentDragAngle / maxSweepAngle;
+    _value = _percentageToValue(_currentPercentage, min: _min, max: _max);
+    _onChanged?.call(_value);
+    markNeedsPaint();
+  }
+
+  @override
+  bool hitTestSelf(Offset position) => cursorBounds.contains(position);
+
+  @override
+  void handleEvent(PointerEvent event, covariant HitTestEntry entry) {
+    assert(debugHandleEvent(event, entry));
+    if (event is PointerDownEvent) {
+      drag.addPointer(event);
+    }
+  }
 
   @override
   bool get sizedByParent => true;
@@ -133,13 +187,13 @@ class RenderGaugeMeter extends RenderBox {
     final canvas = context.canvas;
     final preferredWidth = (size.shortestSide * .9).clamp(200.0, 800.0);
     final bounds = Rect.fromCenter(
-      center: size.center(Offset.zero),
+      center: size.center(offset),
       width: preferredWidth,
       height: preferredWidth / 2,
     );
 
     // Draw background arc with spacing
-    final gaugeBounds = bounds.topLeft & Size(bounds.size.width, bounds.size.height * 2);
+    gaugeBounds = bounds.topLeft & Size(bounds.size.width, bounds.size.height * 2);
     final strokeWidth = gaugeBounds.radius / 24;
     final spacingAngle = (strokeWidth / 2.5).clamp(4.0, 8.0).radians;
     final backgroundPaint = Paint()
@@ -163,13 +217,12 @@ class RenderGaugeMeter extends RenderBox {
     }
 
     // Draw selection arc
-    final currentAngle = currentPercentage * maxSweepAngle;
-    final selectedPair = _deriveSelectedPair(currentPercentage);
+    final selectedPair = _deriveSelectedPair(_currentPercentage);
     final selectedColor = selectedPair.b;
     canvas.drawArc(
       gaugeBounds,
       angleOffset,
-      currentAngle,
+      _currentDragAngle,
       false,
       Paint()
         ..color = selectedColor
@@ -180,7 +233,8 @@ class RenderGaugeMeter extends RenderBox {
 
     // Draw cursor
     final cursorRadius = strokeWidth * 1.75;
-    final cursorOffset = toPolar(gaugeBounds.center, angleOffset + currentAngle, bounds.width / 2);
+    final cursorOffset = toPolar(gaugeBounds.center, angleOffset + _currentDragAngle, bounds.width / 2);
+    cursorBounds = Rect.fromCircle(center: cursorOffset, radius: cursorRadius * 1.5);
     canvas.drawCircle(cursorOffset, cursorRadius, Paint()..color = cursorColor);
     canvas.drawCircle(
       cursorOffset,
@@ -231,6 +285,14 @@ class RenderGaugeMeter extends RenderBox {
 
   static double _valueToPercentage(double value, {double min, double max}) {
     return interpolate(inputMin: min, inputMax: max)(value);
+  }
+
+  static double _valueToAngle(double value, {double min, double max}) {
+    return _valueToPercentage(value, min: min, max: max) * maxSweepAngle;
+  }
+
+  static double _percentageToValue(double value, {double min, double max}) {
+    return interpolate(outputMin: min, outputMax: max)(value);
   }
 
   Pair<String, Color> _deriveSelectedPair(double value) {
