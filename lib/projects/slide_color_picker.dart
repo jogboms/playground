@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
@@ -122,12 +123,11 @@ class RenderColorPicker extends RenderBox {
   }
 
   double get selectedPercent {
-    return slideController.value.clamp(0.0, trackHandleBounds.width) / trackHandleBounds.width;
+    final resolvedWidth = math.max(1, trackHandleBounds.width);
+    return slideController.value.clamp(0.0, resolvedWidth) / resolvedWidth;
   }
 
-  Color get selectedColor {
-    return _resolveColorFromHue(selectedPercent * maxColorHue);
-  }
+  Color get selectedColor => _resolveColorFromHue(selectedPercent * maxColorHue);
 
   @override
   void attach(PipelineOwner owner) {
@@ -166,9 +166,6 @@ class RenderColorPicker extends RenderBox {
   }
 
   @override
-  BoxConstraints get constraints => super.constraints.loosen();
-
-  @override
   Size computeDryLayout(BoxConstraints constraints) {
     return _computeSize(constraints);
   }
@@ -181,11 +178,10 @@ class RenderColorPicker extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
-    final trackHeight = _resolveTrackHeight(constraints);
-    final controlHandleHeight = _resolveControlHandleHeight(trackHeight);
+    final trackHeight = _controlHandleHeight / 3;
     final trackBounds = Rect.fromCenter(
-      center: size.bottomCenter(offset).translate(0, -controlHandleHeight / 2),
-      width: size.width - controlHandleHeight,
+      center: size.bottomCenter(offset).translate(0, -_controlHandleHeight / 2),
+      width: size.width - _controlHandleHeight,
       height: trackHeight,
     );
     trackHandleBounds = RRect.fromRectAndRadius(trackBounds, Radius.circular(trackHeight / 2));
@@ -199,13 +195,14 @@ class RenderColorPicker extends RenderBox {
     // Compute control handle & preview
     final handleBounds = Rect.fromCircle(
       center: Offset((selectedPercent * trackBounds.width) + trackBounds.left, trackBounds.center.dy),
-      radius: controlHandleHeight / 2,
+      radius: _controlHandleHeight / 2,
     );
-    controlHandleBounds = RRect.fromRectAndRadius(handleBounds, Radius.circular(controlHandleHeight / 4));
+    controlHandleBounds = RRect.fromRectAndRadius(handleBounds, Radius.circular(_controlHandleHeight / 4));
 
-    final triangleLength = _resolveIconSize(trackHeight);
-    final previewOffset = handleBounds.center - Offset(0, _resolvePreviewSpacing(trackHeight));
-    final previewRadius = _resolvePreviewHeight(trackHeight) / 2;
+    final triangleLength = _previewHeight * .125;
+    final previewSpace = triangleLength * .75;
+    final previewOffset = handleBounds.topCenter - Offset(0, previewSpace);
+    final previewRadius = (_previewHeight - triangleLength - previewSpace) / 2;
     const previewRadiusRatio = 2.5;
     final previewCenter = previewOffset.translate(0, -previewRadius - triangleLength);
     final previewPath = Path()
@@ -221,7 +218,7 @@ class RenderColorPicker extends RenderBox {
       ..addRRect(controlHandleBounds);
 
     // Compute handle arrow icons
-    final iconSize = _resolveIconSize(trackHeight);
+    final iconSize = trackHeight / 2.25;
     final iconSpacing = iconSize / 2.5;
     const iconWidthFactor = 1.75;
     previewPath
@@ -262,33 +259,18 @@ class RenderColorPicker extends RenderBox {
     return HSLColor.fromAHSL(1, value, 1.0, .5).toColor();
   }
 
-  static Size _computeSize(BoxConstraints constraints) {
-    final trackHeight = _resolveTrackHeight(constraints);
-    final previewHeight = _resolvePreviewHeight(trackHeight) + _resolveIconSize(trackHeight);
-    final previewSpacing = _resolvePreviewSpacing(trackHeight);
-    final controlHandleHeight = _resolveControlHandleHeight(trackHeight);
-    return constraints.constrain(Size(constraints.maxWidth, previewHeight + previewSpacing + controlHandleHeight));
+  Size _computeSize(BoxConstraints constraints) {
+    return constraints.constrain(Size(_initialPreferredSize.width, _controlHandleHeight + _previewHeight));
   }
 
-  static double _resolveTrackHeight(BoxConstraints constraints) {
-    return constraints.maxHeight * .125;
+  Size get _initialPreferredSize {
+    final maxSize = constraints.biggest;
+    return Size(maxSize.width.clamp(100.0, 800.0).toDouble(), maxSize.height.clamp(0.0, 300.0).toDouble());
   }
 
-  static double _resolveControlHandleHeight(double trackHeight) {
-    return trackHeight * 3.5;
-  }
+  double get _controlHandleHeight => _initialPreferredSize.height * 0.45;
 
-  static double _resolvePreviewHeight(double trackHeight) {
-    return trackHeight * 3.25;
-  }
-
-  static double _resolvePreviewSpacing(double trackHeight) {
-    return trackHeight * 2.25;
-  }
-
-  static double _resolveIconSize(double trackHeight) {
-    return trackHeight * .5;
-  }
+  double get _previewHeight => _initialPreferredSize.height * 0.55;
 
   double _resolveHorizontalOffsetFromLocalPosition(Offset position) {
     return position.dx - trackHandleBounds.left;
