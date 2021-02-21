@@ -14,8 +14,7 @@ class _SlideColorPickerState extends State<SlideColorPicker> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Center(
           child: SizedBox(
@@ -90,16 +89,12 @@ class RenderColorPicker extends RenderBox {
   ValueChanged<Color> _onChanged;
 
   set onChanged(ValueChanged<Color> onChanged) {
-    if (_onChanged == onChanged) {
-      return;
-    }
     _onChanged = onChanged;
   }
 
   static const maxColorHue = 360;
   static const controlHandleColor = Color(0xFFFFFFFF);
-  static const iconColor = Color(0xFF444444);
-  static const shadowColor = Color(0x38000000);
+  static const shadowColor = Color(0x43000000);
 
   void _onStartDrag(DragStartDetails details) {
     slideController.value = _resolveHorizontalOffsetFromLocalPosition(details.localPosition);
@@ -201,7 +196,7 @@ class RenderColorPicker extends RenderBox {
       Paint()..shader = LinearGradient(colors: colorsSpectrum).createShader(trackBounds),
     );
 
-    // Draw control handle & preview
+    // Compute control handle & preview
     final handleBounds = Rect.fromCircle(
       center: Offset((selectedPercent * trackBounds.width) + trackBounds.left, trackBounds.center.dy),
       radius: controlHandleHeight / 2,
@@ -223,39 +218,44 @@ class RenderColorPicker extends RenderBox {
           Radius.circular(previewRadius / previewRadiusRatio),
         ),
       )
-      ..addRRect(controlHandleBounds)
-      ..close();
+      ..addRRect(controlHandleBounds);
+
+    // Compute handle arrow icons
+    final iconSize = _resolveIconSize(trackHeight);
+    final iconSpacing = iconSize / 2.5;
+    const iconWidthFactor = 1.75;
+    previewPath
+      ..addPath(
+        Path()
+          ..moveTo(handleBounds.center.dx - iconSpacing, handleBounds.center.dy - iconSize)
+          ..relativeLineTo(-iconSize * iconWidthFactor, iconSize)
+          ..relativeLineTo(iconSize * iconWidthFactor, iconSize)
+          ..relativeMoveTo(iconSpacing * 2.0, 0)
+          ..relativeLineTo(iconSize * iconWidthFactor, -iconSize)
+          ..relativeLineTo(-iconSize * iconWidthFactor, -iconSize)
+          ..close(),
+        offset,
+      );
+
+    // Draw control handle shadow
     canvas.drawPath(
       previewPath,
       Paint()
         ..color = shadowColor
         ..maskFilter = ui.MaskFilter.blur(BlurStyle.normal, previewRadius / 1.5),
     );
+    // Draw control handle
     canvas.drawPath(previewPath, Paint()..color = controlHandleColor);
 
     // Draw preview color
-    final delta = previewRadius / 6.0;
+    final borderPadding = previewRadius / 6.0;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromCircle(center: previewCenter, radius: previewRadius - delta),
-        Radius.circular((previewRadius - delta) / previewRadiusRatio),
+        Rect.fromCircle(center: previewCenter, radius: previewRadius - borderPadding),
+        Radius.circular((previewRadius - borderPadding) / previewRadiusRatio),
       ),
       Paint()..color = selectedColor,
     );
-
-    // Draw handle arrow icons
-    final iconSize = _resolveIconSize(trackHeight);
-    final iconSpacing = iconSize / 2.5;
-    const iconWidthFactor = 1.75;
-    final cursorPath = Path()
-      ..moveTo(handleBounds.center.dx - iconSpacing, handleBounds.center.dy - iconSize)
-      ..relativeLineTo(-iconSize * iconWidthFactor, iconSize)
-      ..relativeLineTo(iconSize * iconWidthFactor, iconSize)
-      ..relativeMoveTo(iconSpacing * 2.0, 0)
-      ..relativeLineTo(iconSize * iconWidthFactor, -iconSize)
-      ..relativeLineTo(-iconSize * iconWidthFactor, -iconSize)
-      ..close();
-    canvas.drawPath(cursorPath, Paint()..color = iconColor);
   }
 
   static Color _resolveColorFromHue(double value) {
