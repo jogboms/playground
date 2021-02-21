@@ -53,8 +53,8 @@ extension RectX on ui.Rect {
   }
 }
 
-double toAngle(ui.Offset coords, double radius) {
-  return (coords - ui.Offset(radius, radius)).direction;
+double toAngle(ui.Offset coords, ui.Offset center) {
+  return (coords - center).direction;
 }
 
 ui.Offset toPolar(ui.Offset center, double radians, double radius) {

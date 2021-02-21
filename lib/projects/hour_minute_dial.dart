@@ -496,7 +496,8 @@ class DialItemRenderBox extends RenderBox {
   void _onDragUpdate(DragUpdateDetails details) {
     final previousOffset = _currentDragOffset;
     _currentDragOffset += details.delta;
-    final diffInAngle = toAngle(previousOffset, radius) - toAngle(_currentDragOffset, radius);
+    final center = Offset(size.radius, size.radius);
+    final diffInAngle = toAngle(previousOffset, center) - toAngle(_currentDragOffset, center);
     _onAngleChanged(normalizeAngle(_currentAngle + diffInAngle));
   }
 

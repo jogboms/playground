@@ -511,7 +511,8 @@ class RenderSlideButton extends RenderBox {
   }
 
   double _calculateDiffInAngle(Offset prev, Offset current) {
-    return toAngle(prev, size.radius) - toAngle(current, size.radius);
+    final center = Offset(size.radius, size.radius);
+    return toAngle(prev, center) - toAngle(current, center);
   }
 }
 

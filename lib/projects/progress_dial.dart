@@ -92,7 +92,8 @@ class RenderProgressDial extends RenderBox {
   void _onDragUpdate(DragUpdateDetails details) {
     final previousOffset = _currentDragOffset;
     _currentDragOffset += details.delta;
-    final diffInAngle = toAngle(_currentDragOffset, knobRect.radius) - toAngle(previousOffset, knobRect.radius);
+    final center = Offset(size.radius, size.radius);
+    final diffInAngle = toAngle(_currentDragOffset, center) - toAngle(previousOffset, center);
     _onAngleChanged((_currentAngle + diffInAngle).normalize(totalAngle).toDouble());
   }
 
