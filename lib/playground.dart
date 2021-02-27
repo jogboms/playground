@@ -23,7 +23,10 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: GraphView(),
+        child: SizedBox(
+          height: 600,
+          child: GraphView(),
+        ),
       ),
     );
   }
@@ -47,23 +50,41 @@ class GraphViewWidget extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderGraphViewWidget(
       controller: ScrollController()..attach(Scrollable.of(context).position),
+      values: List.generate(100, (_) => math.Random().nextDouble() * kMaxValue),
     );
   }
 }
 
+const kMaxValue = 500.0;
+
 class RenderGraphViewWidget extends RenderSliver {
   RenderGraphViewWidget({
     @required this.controller,
-  });
+    @required List<double> values,
+  })  : _values = values,
+        _maxValue = values.reduce(math.max);
 
   final ScrollController controller;
+
+  double _maxValue;
+
+  List<double> _values;
+
+  set values(List<double> values) {
+    if (_values == values) {
+      return;
+    }
+    _values = values;
+    _maxValue = values.reduce(math.max);
+    markNeedsPaint();
+    markNeedsLayout();
+  }
 
   void _animateTo(double horizontalOffset) {
     controller.animateTo(horizontalOffset, duration: Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
   }
 
-  static const itemCount = 50;
-  static const itemExtent = 100;
+  static const itemExtent = 100.0;
   static const itemMinHeight = 50.0;
   static const itemMaxHeight = 300.0;
   static const tickDivisions = 5;
@@ -71,11 +92,6 @@ class RenderGraphViewWidget extends RenderSliver {
   static const shadowColor = Color(0xFF303030);
 
   List<Rect> debugBounds = [];
-
-  @override
-  SliverConstraints get constraints => super.constraints.copyWith(
-        crossAxisExtent: super.constraints.crossAxisExtent.clamp(itemMinHeight, itemMaxHeight).toDouble(),
-      );
 
   @override
   bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
@@ -87,9 +103,11 @@ class RenderGraphViewWidget extends RenderSliver {
     if (event is PointerDownEvent) {}
   }
 
+  int get _itemCount => _values.length;
+
   @override
   void performLayout() {
-    final maxExtent = (itemCount * itemExtent) + padding;
+    final maxExtent = ((_itemCount - 1) * itemExtent) + padding;
     final extent = math.max(constraints.viewportMainAxisExtent, maxExtent);
     final paintExtent = calculatePaintOffset(constraints, from: 0.0, to: extent);
     final cacheExtent = calculateCacheOffset(constraints, from: 0.0, to: extent);
@@ -106,21 +124,31 @@ class RenderGraphViewWidget extends RenderSliver {
 
   Size get viewport => Size(constraints.viewportMainAxisExtent, constraints.crossAxisExtent);
 
-  double get padding => viewport.width;
+  double get padding => 0.0;
 
   @override
   void paint(PaintingContext context, Offset offset) {
     debugBounds = [];
     final canvas = context.canvas;
     final viewportRect = offset & viewport;
-
-    final standardFontSize = viewport.height / 12;
-    final fontEnlargement = standardFontSize * 2.5;
-    final enlargedFontSize = standardFontSize + fontEnlargement;
+    debugBounds.add(viewportRect);
 
     final scrolledOffset = offset.translate(-constraints.scrollOffset, 0);
     final resolvedOffset = scrolledOffset.translate(padding / 2, 0);
-    final normalizedHorizontalOffset = math.min(0, scrolledOffset.dx).abs();
+
+    final viewportHeight = viewportRect.height;
+    Offset previousOffset;
+    for (var i = 0; i < _itemCount; i++) {
+      final currentOffset = resolvedOffset + Offset(i * itemExtent, viewportHeight * (1 - (_values[i] / _maxValue)));
+      if (previousOffset != null) {
+        canvas.drawLine(
+          previousOffset,
+          currentOffset,
+          Paint()..color = Colors.red,
+        );
+      }
+      previousOffset = currentOffset;
+    }
   }
 
   @override
