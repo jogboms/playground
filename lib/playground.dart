@@ -91,10 +91,13 @@ class RenderGraphViewWidget extends RenderSliver {
 
   Rect fillPathBounds;
 
-  Offset _selectedOffset;
+  int _selectedIndex;
 
   void _onTapDown(TapDownDetails details) {
-    _selectedOffset = Offset(details.localPosition.dx + constraints.scrollOffset, 0);
+    final offset = details.localPosition.dx + constraints.scrollOffset - (padding / 2);
+    _selectedIndex = interpolate(inputMax: geometry.maxPaintExtent - padding, outputMax: _itemCount - 1.0)(offset)
+        .discretize(1)
+        .toInt();
     markNeedsPaint();
   }
 
@@ -112,9 +115,11 @@ class RenderGraphViewWidget extends RenderSliver {
 
   int get _itemCount => _values.length;
 
+  double get padding => itemExtent * 2;
+
   @override
   void performLayout() {
-    final maxExtent = (_itemCount - 1) * itemExtent;
+    final maxExtent = ((_itemCount - 1) * itemExtent) + padding;
     final paintExtent = calculatePaintOffset(constraints, from: 0.0, to: maxExtent);
     final cacheExtent = calculateCacheOffset(constraints, from: 0.0, to: maxExtent);
 
@@ -134,15 +139,25 @@ class RenderGraphViewWidget extends RenderSliver {
   void paint(PaintingContext context, Offset offset) {
     debugBounds.clear();
     final canvas = context.canvas;
-    final viewportRect = offset & viewport;
+    final viewportRect = Rect.fromCenter(
+      center: viewport.center(offset),
+      width: viewport.width,
+      height: viewport.height - padding,
+    );
     debugBounds.add(viewportRect);
 
     // Generate points offset
-    final scrolledOffset = offset.translate(-constraints.scrollOffset, 0);
+    final scrolledOffset = offset.translate(-constraints.scrollOffset + (padding / 2), viewportRect.top);
     final viewportHeight = viewportRect.height;
     final offsets = <Offset>[];
     for (var i = 0; i < _itemCount; i++) {
-      offsets.add(scrolledOffset + Offset(i * itemExtent, viewportHeight * (1 - (_values[i] / _maxValue))));
+      offsets.add(
+        scrolledOffset +
+            Offset(
+              i * itemExtent,
+              viewportHeight * (1 - (_values[i] / _maxValue)),
+            ),
+      );
     }
 
     // Generate curved path from spline
@@ -181,13 +196,10 @@ class RenderGraphViewWidget extends RenderSliver {
     );
 
     // Draw selector
-    if (_selectedOffset != null) {
+    if (_selectedIndex != null) {
       const verticalOffset = 4.0;
-      final selectedIndex =
-          interpolate(inputMax: geometry.maxPaintExtent, outputMax: (_itemCount - 1).toDouble())(_selectedOffset.dx)
-              .discretize(1)
-              .toInt();
-      final selectedOffset = offsets[selectedIndex];
+      const circleRation = 2.5;
+      final selectedOffset = offsets[_selectedIndex];
       canvas.drawLine(
         Offset(selectedOffset.dx, viewportRect.top + verticalOffset),
         Offset(selectedOffset.dx, viewportRect.bottom - verticalOffset),
@@ -197,8 +209,8 @@ class RenderGraphViewWidget extends RenderSliver {
           ..strokeCap = StrokeCap.round
           ..style = PaintingStyle.stroke,
       );
-      canvas.drawCircle(selectedOffset, (strokeWidth + 1) * 4, Paint()..color = backgroundColor);
-      canvas.drawCircle(selectedOffset, strokeWidth * 4, Paint()..color = selectorColor);
+      canvas.drawCircle(selectedOffset, (strokeWidth + 1) * circleRation, Paint()..color = backgroundColor);
+      canvas.drawCircle(selectedOffset, strokeWidth * circleRation, Paint()..color = selectorColor);
     }
   }
 
