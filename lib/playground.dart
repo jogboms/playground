@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:playground/extensions.dart';
+import 'package:playground/interpolate.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -49,23 +51,21 @@ class GraphViewWidget extends LeafRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
+    const kMaxValue = 150.0;
     return RenderGraphViewWidget(
-      controller: ScrollController()..attach(Scrollable.of(context).position),
       values: List.generate(50, (_) => math.Random().nextDouble() * kMaxValue),
     );
   }
 }
 
-const kMaxValue = 500.0;
-
 class RenderGraphViewWidget extends RenderSliver {
-  RenderGraphViewWidget({
-    @required this.controller,
-    @required List<double> values,
-  })  : _values = values,
-        _maxValue = values.reduce(math.max);
+  RenderGraphViewWidget({@required List<double> values})
+      : _values = values,
+        _maxValue = values.reduce(math.max) {
+    tap = TapGestureRecognizer()..onTapDown = _onTapDown;
+  }
 
-  final ScrollController controller;
+  TapGestureRecognizer tap;
 
   double _maxValue;
 
@@ -81,24 +81,33 @@ class RenderGraphViewWidget extends RenderSliver {
     markNeedsLayout();
   }
 
-  void _animateTo(double horizontalOffset) {
-    controller.animateTo(horizontalOffset, duration: Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
-  }
-
-  static const itemExtent = 50.0;
+  static const itemExtent = 48.0;
   static const strokeColor = Color(0xFF6E50A3);
   static const shadowColor = Color(0xFF1B0F41);
+  static const selectorColor = Color(0xFFFFFFFF);
+  static const backgroundColor = Color(0xFF000000);
 
   Set<Rect> debugBounds = {};
 
+  Rect fillPathBounds;
+
+  Offset _selectedOffset;
+
+  void _onTapDown(TapDownDetails details) {
+    _selectedOffset = Offset(details.localPosition.dx + constraints.scrollOffset, 0);
+    markNeedsPaint();
+  }
+
   @override
   bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
-    return true;
+    return fillPathBounds.contains(Offset(mainAxisPosition, crossAxisPosition));
   }
 
   @override
   void handleEvent(PointerEvent event, covariant SliverHitTestEntry entry) {
-    if (event is PointerDownEvent) {}
+    if (event is PointerDownEvent) {
+      tap.addPointer(event);
+    }
   }
 
   int get _itemCount => _values.length;
@@ -106,15 +115,14 @@ class RenderGraphViewWidget extends RenderSliver {
   @override
   void performLayout() {
     final maxExtent = (_itemCount - 1) * itemExtent;
-    final extent = math.max(constraints.viewportMainAxisExtent, maxExtent);
-    final paintExtent = calculatePaintOffset(constraints, from: 0.0, to: extent);
-    final cacheExtent = calculateCacheOffset(constraints, from: 0.0, to: extent);
+    final paintExtent = calculatePaintOffset(constraints, from: 0.0, to: maxExtent);
+    final cacheExtent = calculateCacheOffset(constraints, from: 0.0, to: maxExtent);
 
     geometry = SliverGeometry(
-      scrollExtent: extent,
+      scrollExtent: maxExtent,
       paintExtent: paintExtent,
       cacheExtent: cacheExtent,
-      maxPaintExtent: extent,
+      maxPaintExtent: maxExtent,
       hitTestExtent: paintExtent,
       hasVisualOverflow: maxExtent > constraints.remainingPaintExtent || constraints.scrollOffset > 0.0,
     );
@@ -148,7 +156,7 @@ class RenderGraphViewWidget extends RenderSliver {
     final fillPath = Path.from(curvedPath)
       ..lineTo(offsets.last.dx, viewportHeight)
       ..lineTo(offsets.first.dx, viewportHeight);
-    final fillPathBounds = fillPath.getBounds();
+    fillPathBounds = fillPath.getBounds();
     debugBounds.add(fillPathBounds);
     canvas.drawPath(
       fillPath,
@@ -162,13 +170,36 @@ class RenderGraphViewWidget extends RenderSliver {
     );
 
     // Draw curved path
+    const strokeWidth = 4.0;
     canvas.drawPath(
       curvedPath,
       Paint()
         ..color = strokeColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 4.0,
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = strokeWidth,
     );
+
+    // Draw selector
+    if (_selectedOffset != null) {
+      const verticalOffset = 4.0;
+      final selectedIndex =
+          interpolate(inputMax: geometry.maxPaintExtent, outputMax: (_itemCount - 1).toDouble())(_selectedOffset.dx)
+              .discretize(1)
+              .toInt();
+      final selectedOffset = offsets[selectedIndex];
+      canvas.drawLine(
+        Offset(selectedOffset.dx, viewportRect.top + verticalOffset),
+        Offset(selectedOffset.dx, viewportRect.bottom - verticalOffset),
+        Paint()
+          ..color = selectorColor
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round
+          ..style = PaintingStyle.stroke,
+      );
+      canvas.drawCircle(selectedOffset, (strokeWidth + 1) * 4, Paint()..color = backgroundColor);
+      canvas.drawCircle(selectedOffset, strokeWidth * 4, Paint()..color = selectorColor);
+    }
   }
 
   @override
