@@ -22,6 +22,7 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
         child: SizedBox(
           height: 600,
@@ -50,7 +51,7 @@ class GraphViewWidget extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderGraphViewWidget(
       controller: ScrollController()..attach(Scrollable.of(context).position),
-      values: List.generate(100, (_) => math.Random().nextDouble() * kMaxValue),
+      values: List.generate(50, (_) => math.Random().nextDouble() * kMaxValue),
     );
   }
 }
@@ -84,14 +85,11 @@ class RenderGraphViewWidget extends RenderSliver {
     controller.animateTo(horizontalOffset, duration: Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
   }
 
-  static const itemExtent = 100.0;
-  static const itemMinHeight = 50.0;
-  static const itemMaxHeight = 300.0;
-  static const tickDivisions = 5;
-  static const labelColor = Color(0xFFFFFFFF);
-  static const shadowColor = Color(0xFF303030);
+  static const itemExtent = 50.0;
+  static const strokeColor = Color(0xFF6E50A3);
+  static const shadowColor = Color(0xFF1B0F41);
 
-  List<Rect> debugBounds = [];
+  Set<Rect> debugBounds = {};
 
   @override
   bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
@@ -107,7 +105,7 @@ class RenderGraphViewWidget extends RenderSliver {
 
   @override
   void performLayout() {
-    final maxExtent = ((_itemCount - 1) * itemExtent) + padding;
+    final maxExtent = (_itemCount - 1) * itemExtent;
     final extent = math.max(constraints.viewportMainAxisExtent, maxExtent);
     final paintExtent = calculatePaintOffset(constraints, from: 0.0, to: extent);
     final cacheExtent = calculateCacheOffset(constraints, from: 0.0, to: extent);
@@ -124,31 +122,53 @@ class RenderGraphViewWidget extends RenderSliver {
 
   Size get viewport => Size(constraints.viewportMainAxisExtent, constraints.crossAxisExtent);
 
-  double get padding => 0.0;
-
   @override
   void paint(PaintingContext context, Offset offset) {
-    debugBounds = [];
+    debugBounds.clear();
     final canvas = context.canvas;
     final viewportRect = offset & viewport;
     debugBounds.add(viewportRect);
 
+    // Generate points offset
     final scrolledOffset = offset.translate(-constraints.scrollOffset, 0);
-    final resolvedOffset = scrolledOffset.translate(padding / 2, 0);
-
     final viewportHeight = viewportRect.height;
-    Offset previousOffset;
+    final offsets = <Offset>[];
     for (var i = 0; i < _itemCount; i++) {
-      final currentOffset = resolvedOffset + Offset(i * itemExtent, viewportHeight * (1 - (_values[i] / _maxValue)));
-      if (previousOffset != null) {
-        canvas.drawLine(
-          previousOffset,
-          currentOffset,
-          Paint()..color = Colors.red,
-        );
-      }
-      previousOffset = currentOffset;
+      offsets.add(scrolledOffset + Offset(i * itemExtent, viewportHeight * (1 - (_values[i] / _maxValue))));
     }
+
+    // Generate curved path from spline
+    final spline = CatmullRomSpline(offsets).generateSamples();
+    final curvedPath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
+    for (final sample in spline) {
+      curvedPath..lineTo(sample.value.dx, sample.value.dy);
+    }
+
+    // Draw filled curved path
+    final fillPath = Path.from(curvedPath)
+      ..lineTo(offsets.last.dx, viewportHeight)
+      ..lineTo(offsets.first.dx, viewportHeight);
+    final fillPathBounds = fillPath.getBounds();
+    debugBounds.add(fillPathBounds);
+    canvas.drawPath(
+      fillPath,
+      Paint()
+        ..shader = LinearGradient(
+          colors: [shadowColor, Color(0x00000000)],
+          stops: [0.6, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ).createShader(fillPathBounds),
+    );
+
+    // Draw curved path
+    canvas.drawPath(
+      curvedPath,
+      Paint()
+        ..color = strokeColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4.0,
+    );
   }
 
   @override
