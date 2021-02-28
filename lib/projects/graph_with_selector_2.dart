@@ -7,20 +7,12 @@ import 'package:flutter/rendering.dart';
 import 'package:playground/extensions.dart';
 import 'package:playground/interpolate.dart';
 
-void main() => runApp(
-      MaterialApp(
-        theme: ThemeData.dark(),
-        debugShowCheckedModeBanner: false,
-        home: Playground(),
-      ),
-    );
-
-class Playground extends StatefulWidget {
+class GraphWithSelectorII extends StatefulWidget {
   @override
-  _PlaygroundState createState() => _PlaygroundState();
+  _GraphWithSelectorIIState createState() => _GraphWithSelectorIIState();
 }
 
-class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
+class _GraphWithSelectorIIState extends State<GraphWithSelectorII> with TickerProviderStateMixin {
   final List<double> values = List.generate(20, (_) => math.Random().nextDouble() * 150.0);
 
   @override

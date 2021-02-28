@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
+
 extension DoubleX on double {
   double discretize(int divisions) {
     return (this * divisions).round() / divisions;
@@ -54,6 +57,21 @@ extension RectX on ui.Rect {
 
   ui.Rect shrink({double top = 0.0, double left = 0.0, double right = 0.0, double bottom = 0.0}) {
     return ui.Rect.fromLTRB(this.left + left, this.top + top, this.right - right, this.bottom - bottom);
+  }
+}
+
+extension CanvasX on Canvas {
+  Rect drawText(
+    String text, {
+    @required Offset center,
+    TextStyle style = const TextStyle(fontSize: 14.0, color: Color(0xFF333333), fontWeight: FontWeight.normal),
+  }) {
+    final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.rtl)
+      ..text = TextSpan(text: text, style: style)
+      ..layout();
+    final bounds = (center & textPainter.size).translate(-textPainter.width / 2, -textPainter.height / 2);
+    textPainter.paint(this, bounds.topLeft);
+    return bounds;
   }
 }
 
