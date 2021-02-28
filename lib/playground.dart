@@ -23,12 +23,15 @@ class Playground extends StatefulWidget {
 class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    const kMaxValue = 150.0;
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
         child: SizedBox(
-          height: 600,
-          child: GraphView(),
+          height: 400,
+          child: GraphView(
+            values: List.generate(50, (_) => math.Random().nextDouble() * kMaxValue),
+          ),
         ),
       ),
     );
@@ -36,25 +39,32 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
 }
 
 class GraphView extends ScrollView {
-  GraphView({Key key}) : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
+  GraphView({Key key, @required this.values})
+      : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
+
+  final List<double> values;
 
   @override
   List<Widget> buildSlivers(BuildContext context) {
     return [
-      GraphViewWidget(),
+      GraphViewWidget(values: values),
     ];
   }
 }
 
 class GraphViewWidget extends LeafRenderObjectWidget {
-  const GraphViewWidget({Key key}) : super(key: key);
+  const GraphViewWidget({Key key, @required this.values}) : super(key: key);
+
+  final List<double> values;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    const kMaxValue = 150.0;
-    return RenderGraphViewWidget(
-      values: List.generate(50, (_) => math.Random().nextDouble() * kMaxValue),
-    );
+    return RenderGraphViewWidget(values: values);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, covariant RenderGraphViewWidget renderObject) {
+    renderObject..values = values;
   }
 }
 
@@ -204,7 +214,7 @@ class RenderGraphViewWidget extends RenderSliver {
         Offset(selectedOffset.dx, viewportRect.top + verticalOffset),
         Offset(selectedOffset.dx, viewportRect.bottom - verticalOffset),
         Paint()
-          ..color = selectorColor
+          ..color = selectorColor.withOpacity(.6)
           ..strokeWidth = strokeWidth
           ..strokeCap = StrokeCap.round
           ..style = PaintingStyle.stroke,
