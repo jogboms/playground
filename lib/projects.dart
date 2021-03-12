@@ -6,6 +6,7 @@ import 'projects/edge_detection.dart';
 import 'projects/gauge_meter.dart';
 import 'projects/gradient_range_selector.dart';
 import 'projects/graph_with_selector.dart';
+import 'projects/graph_with_selector_2.dart';
 import 'projects/hour_minute_dial.dart';
 import 'projects/measure_slider.dart';
 import 'projects/more_balls_generator.dart';
@@ -26,6 +27,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => SlideColorPicker()),
     MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),
     MapEntry<String, WidgetBuilder>('Graph With Selector', (_) => GraphWithSelector()),
+    MapEntry<String, WidgetBuilder>('Graph With Selector II', (_) => GraphWithSelectorII()),
     MapEntry<String, WidgetBuilder>('Heart Of Maths', (_) => HeartOfMaths()),
     MapEntry<String, WidgetBuilder>('Edge Detection', (_) => EdgeDetection()),
     MapEntry<String, WidgetBuilder>('Balls Generator', (_) => BallsGenerator()),

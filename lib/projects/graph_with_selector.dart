@@ -22,6 +22,7 @@ class _GraphWithSelectorState extends State<GraphWithSelector> with TickerProvid
         child: SizedBox(
           height: 400,
           child: GraphView(
+            vsync: this,
             values: List.generate(50, (_) => math.Random().nextDouble() * kMaxValue),
           ),
         ),
@@ -31,45 +32,71 @@ class _GraphWithSelectorState extends State<GraphWithSelector> with TickerProvid
 }
 
 class GraphView extends ScrollView {
-  GraphView({Key key, @required this.values})
+  GraphView({Key key, @required this.vsync, @required this.values})
       : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
 
+  final TickerProvider vsync;
   final List<double> values;
 
   @override
   List<Widget> buildSlivers(BuildContext context) {
     return [
-      GraphViewWidget(values: values),
+      GraphViewWidget(vsync: vsync, values: values),
     ];
   }
 }
 
 class GraphViewWidget extends LeafRenderObjectWidget {
-  const GraphViewWidget({Key key, @required this.values}) : super(key: key);
+  const GraphViewWidget({Key key, @required this.vsync, @required this.values}) : super(key: key);
 
+  final TickerProvider vsync;
   final List<double> values;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderGraphViewWidget(values: values);
+    return RenderGraphViewWidget(
+      vsync: vsync,
+      controller: ScrollController()..attach(Scrollable.of(context).position),
+      values: values,
+    );
   }
 
   @override
   void updateRenderObject(BuildContext context, covariant RenderGraphViewWidget renderObject) {
-    renderObject..values = values;
+    renderObject
+      ..vsync = vsync
+      ..values = values;
   }
 }
 
 class RenderGraphViewWidget extends RenderSliver {
-  RenderGraphViewWidget({@required List<double> values})
-      : _values = values,
+  RenderGraphViewWidget({
+    @required TickerProvider vsync,
+    @required List<double> values,
+    @required this.controller,
+  })  : _vsync = vsync,
+        _values = values,
         _maxValue = values.reduce(math.max) {
     tap = TapGestureRecognizer()..onTapDown = _onTapDown;
   }
 
+  final ScrollController controller;
+
   TapGestureRecognizer tap;
 
   double _maxValue;
+  AnimationController animation;
+
+  TickerProvider _vsync;
+
+  set vsync(TickerProvider vsync) {
+    assert(vsync != null);
+    if (vsync == _vsync) {
+      return;
+    }
+    _vsync = vsync;
+    animation.resync(_vsync);
+  }
 
   List<double> _values;
 
@@ -102,6 +129,37 @@ class RenderGraphViewWidget extends RenderSliver {
         .toInt();
     markNeedsPaint();
   }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+
+    animation = AnimationController(
+      value: 0.0,
+      vsync: _vsync,
+      duration: Duration(milliseconds: 10000),
+    )
+      ..addListener(markNeedsPaint)
+      ..forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.animateTo(
+        500, // You can do some calculations here using the geometry
+        duration: Duration(milliseconds: 10000),
+        curve: Curves.linearToEaseOut,
+      );
+    });
+  }
+
+  @override
+  void detach() {
+    animation.removeListener(markNeedsPaint);
+
+    super.detach();
+  }
+
+  @override
+  bool get isRepaintBoundary => true;
 
   @override
   bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
@@ -163,7 +221,7 @@ class RenderGraphViewWidget extends RenderSliver {
     }
 
     // Generate curved path from spline
-    final spline = CatmullRomSpline(offsets).generateSamples();
+    final spline = CatmullRomSpline(offsets).generateSamples(end: math.max(1e-10, animation.value));
     final curvedPath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
     for (final sample in spline) {
       curvedPath..lineTo(sample.value.dx, sample.value.dy);
