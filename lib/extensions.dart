@@ -106,3 +106,36 @@ class Pair2<A, B, C> {
   final B b;
   final C c;
 }
+
+mixin RenderBoxDebugBounds on RenderBox {
+  Set<Rect> debugBounds = {};
+  Set<Path> debugPaths = {};
+
+  @override
+  void debugPaint(PaintingContext context, ui.Offset offset) {
+    assert(() {
+      super.debugPaint(context, offset);
+
+      if (debugPaintSizeEnabled) {
+        debugBounds.forEach((bounds) {
+          context.canvas.drawRect(
+              bounds,
+              Paint()
+                ..style = PaintingStyle.stroke
+                ..color = const Color(0xFF00FFFF));
+        });
+        debugPaths.forEach((path) {
+          context.canvas.drawPath(
+              path,
+              Paint()
+                ..style = PaintingStyle.stroke
+                ..color = const Color(0xFF00FFFF));
+        });
+      }
+
+      return true;
+    }());
+    debugBounds.clear();
+    debugPaths.clear();
+  }
+}
