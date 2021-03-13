@@ -78,7 +78,7 @@ class _ActivityRingsState extends State<ActivityRings> with TickerProviderStateM
 }
 
 class ActivityRingsWidget extends LeafRenderObjectWidget {
-  const ActivityRingsWidget({Key key, @required this.vsync, @required this.values}) : super(key: key);
+  const ActivityRingsWidget({Key? key, required this.vsync, required this.values}) : super(key: key);
 
   final TickerProvider vsync;
   final List<Data> values;
@@ -97,12 +97,12 @@ class ActivityRingsWidget extends LeafRenderObjectWidget {
 }
 
 class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
-  RenderActivityRings({@required TickerProvider vsync, @required List<Data> values})
+  RenderActivityRings({required TickerProvider vsync, required List<Data> values})
       : _vsync = vsync,
         _values = values;
 
-  AnimationController animation;
-  AnimationController progressAnimation;
+  late AnimationController animation;
+  late AnimationController progressAnimation;
 
   static final startAngle = -90.radians;
   static final angleBuilder = interpolate(inputMax: 100.0, outputMax: 359.0);
@@ -122,7 +122,6 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
   TickerProvider _vsync;
 
   set vsync(TickerProvider vsync) {
-    assert(vsync != null);
     if (vsync == _vsync) {
       return;
     }
@@ -131,12 +130,12 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
     progressAnimation.resync(_vsync);
   }
 
-  int _selectedHitTestIndex;
-  int selectedIndex;
+  int? _selectedHitTestIndex;
+  int? selectedIndex;
 
   void _onTapDown() {
     selectedIndex = _selectedHitTestIndex == selectedIndex ? null : _selectedHitTestIndex;
-    progressAnimation.animateTo(selectedIndex != null ? _values[selectedIndex].progress : 0.0);
+    progressAnimation.animateTo(selectedIndex != null ? _values[selectedIndex!].progress : 0.0);
     HapticFeedback.selectionClick();
   }
 
@@ -154,8 +153,12 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
 
   @override
   void detach() {
-    animation.removeListener(markNeedsPaint);
-    progressAnimation.removeListener(markNeedsPaint);
+    animation
+      ..removeListener(markNeedsPaint)
+      ..dispose();
+    progressAnimation
+      ..removeListener(markNeedsPaint)
+      ..dispose();
 
     super.detach();
   }
@@ -221,11 +224,11 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
     }
 
     if (selectedIndex != null) {
-      final selectedValue = _values[selectedIndex];
+      final selectedValue = _values[selectedIndex!];
       canvas.drawPath(
-        ringPaths[selectedIndex],
+        ringPaths[selectedIndex!]!,
         Paint()
-          ..color = Color.lerp(selectedValue.color, trackColor, .15)
+          ..color = Color.lerp(selectedValue.color, trackColor, .15)!
           ..style = PaintingStyle.stroke
           ..strokeWidth = ringSpacing / 2,
       );
@@ -273,12 +276,12 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
 
   void _drawRing(
     Canvas canvas, {
-    @required Path trackPath,
-    @required Path progressPath,
-    @required double strokeWidth,
-    @required Color color,
-    @required IconData icon,
-    @required Color iconColor,
+    required Path trackPath,
+    required Path progressPath,
+    required double strokeWidth,
+    required Color color,
+    required IconData icon,
+    required Color iconColor,
   }) {
     canvas.drawPath(trackPath, Paint()..color = trackColor);
     debugPaths.add(trackPath);
@@ -301,10 +304,10 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
   }
 
   Pair<Path, Path> _computeRingPaths({
-    @required double sweepAngle,
-    @required double strokeWidth,
-    @required Offset center,
-    @required double radius,
+    required double sweepAngle,
+    required double strokeWidth,
+    required Offset center,
+    required double radius,
   }) {
     final innerRadius = radius - strokeWidth;
     final trackPath = Path()
@@ -343,11 +346,11 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
 
 class Data {
   const Data({
-    @required this.title,
-    @required this.progress,
-    @required this.color,
-    @required this.icon,
-    @required this.iconColor,
+    required this.title,
+    required this.progress,
+    required this.color,
+    required this.icon,
+    required this.iconColor,
   });
 
   final String title;

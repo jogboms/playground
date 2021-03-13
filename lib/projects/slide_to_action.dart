@@ -20,12 +20,12 @@ class _SlideToActionState extends State<SlideToAction> with TickerProviderStateM
       body: Center(
         child: SlideButton(
           vsync: this,
-          title: "SLIDE TO SEND",
+          title: 'SLIDE TO SEND',
           onTap: () {
-            print("onTap");
+            print('onTap');
           },
           onSlide: () {
-            print("onSlide");
+            print('onSlide');
           },
         ),
       ),
@@ -34,11 +34,11 @@ class _SlideToActionState extends State<SlideToAction> with TickerProviderStateM
 }
 
 class SlideButton extends LeafRenderObjectWidget {
-  const SlideButton({Key key, this.title, this.onTap, this.onSlide, @required this.vsync}) : super(key: key);
+  const SlideButton({Key? key, this.title, this.onTap, this.onSlide, required this.vsync}) : super(key: key);
 
-  final String title;
-  final VoidCallback onTap;
-  final VoidCallback onSlide;
+  final String? title;
+  final VoidCallback? onTap;
+  final VoidCallback? onSlide;
   final TickerProvider vsync;
 
   @override
@@ -49,7 +49,7 @@ class SlideButton extends LeafRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, covariant RenderSlideButton renderObject) {
     renderObject
-      ..title = title
+      ..title = title!
       ..onTap = onTap
       ..onSlide = onSlide
       ..vsync = vsync;
@@ -58,10 +58,10 @@ class SlideButton extends LeafRenderObjectWidget {
 
 class RenderSlideButton extends RenderBox {
   RenderSlideButton({
-    String title,
-    VoidCallback onTap,
-    VoidCallback onSlide,
-    TickerProvider vsync,
+    String? title,
+    VoidCallback? onTap,
+    VoidCallback? onSlide,
+    TickerProvider? vsync,
   })  : _title = title,
         _onTap = onTap,
         _onSlide = onSlide,
@@ -77,44 +77,42 @@ class RenderSlideButton extends RenderBox {
       ..onEnd = _onDragEnd;
   }
 
-  DragGestureRecognizer drag;
-  AnimationController slideController;
-  AnimationController heartBeatController;
+  late DragGestureRecognizer drag;
+  late AnimationController slideController;
+  late AnimationController heartBeatController;
 
-  TickerProvider _vsync;
+  TickerProvider? _vsync;
 
   set vsync(TickerProvider vsync) {
-    assert(vsync != null);
     if (vsync == _vsync) {
       return;
     }
     _vsync = vsync;
-    slideController.resync(_vsync);
-    heartBeatController.resync(_vsync);
+    slideController.resync(_vsync!);
+    heartBeatController.resync(_vsync!);
   }
 
-  String _title;
+  String? _title;
 
   set title(String title) {
-    assert(title != null);
     if (_title == title) {
       return;
     }
     _title = title;
   }
 
-  VoidCallback _onTap;
+  VoidCallback? _onTap;
 
-  set onTap(VoidCallback onTap) {
+  set onTap(VoidCallback? onTap) {
     if (_onTap == onTap) {
       return;
     }
     _onTap = onTap;
   }
 
-  VoidCallback _onSlide;
+  VoidCallback? _onSlide;
 
-  set onSlide(VoidCallback onSlide) {
+  set onSlide(VoidCallback? onSlide) {
     if (_onSlide == onSlide) {
       return;
     }
@@ -127,12 +125,12 @@ class RenderSlideButton extends RenderBox {
 
     slideController = AnimationController.unbounded(
       value: 0.0,
-      vsync: _vsync,
+      vsync: _vsync!,
       duration: Duration(milliseconds: 350),
     )..addListener(markNeedsPaint);
 
     heartBeatController = AnimationController(
-      vsync: _vsync,
+      vsync: _vsync!,
       duration: Duration(milliseconds: 1000),
     )
       ..addListener(markNeedsPaint)
@@ -141,22 +139,26 @@ class RenderSlideButton extends RenderBox {
 
   @override
   void detach() {
-    slideController.removeListener(markNeedsPaint);
-    heartBeatController.removeListener(markNeedsPaint);
+    slideController
+      ..removeListener(markNeedsPaint)
+      ..dispose();
+    heartBeatController
+      ..removeListener(markNeedsPaint)
+      ..dispose();
 
     super.detach();
   }
 
   void _onDragStart(DragStartDetails details) {
     slideController.animateTo(size.width * .05).whenCompleteOrCancel(() {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
         _onTap?.call();
       });
     });
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
-    slideController.value += details.primaryDelta;
+    slideController.value += details.primaryDelta!;
   }
 
   void _onDragCancel() {
@@ -168,7 +170,7 @@ class RenderSlideButton extends RenderBox {
     if (slideController.value > threshold) {
       slideController.animateTo(size.width).whenCompleteOrCancel(() {
         _onDragCancel();
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
           _onSlide?.call();
         });
       });
@@ -211,13 +213,13 @@ class RenderSlideButton extends RenderBox {
 
     canvas.drawRRect(
       bounds,
-      Paint()..color = Color.lerp(Color(0xFF141224), Color(0xFF5A01CB), Curves.decelerate.transform(t)),
+      Paint()..color = Color.lerp(Color(0xFF141224), Color(0xFF5A01CB), Curves.decelerate.transform(t))!,
     );
 
     final textColor = Colors.white.withOpacity(1 - Curves.decelerate.transform(t));
     final textRect = _drawParagraph(
       canvas,
-      _title,
+      _title!,
       offset: size.center(offset).translate(value, 0),
       color: textColor,
       fontSize: size.height / 5,
@@ -226,8 +228,8 @@ class RenderSlideButton extends RenderBox {
 
     final arrowOffset = textRect.centerLeft.translate(Curves.decelerate.transform(t) * value, 0);
     final iconData = Icons.chevron_right_rounded;
-    final arrowCount = 3;
-    for (int i = 0; i < arrowCount; i++) {
+    const arrowCount = 3;
+    for (var i = 0; i < arrowCount; i++) {
       _drawParagraph(
         canvas,
         String.fromCharCode(iconData.codePoint),
@@ -243,11 +245,11 @@ class RenderSlideButton extends RenderBox {
   Rect _drawParagraph(
     Canvas canvas,
     String text, {
-    @required Offset offset,
-    @required Color color,
-    @required double fontSize,
-    String fontFamily,
-    FontWeight fontWeight,
+    required Offset offset,
+    required Color? color,
+    required double fontSize,
+    String? fontFamily,
+    FontWeight? fontWeight,
   }) {
     final builder = ui.ParagraphBuilder(ui.ParagraphStyle(textAlign: TextAlign.center))
       ..pushStyle(ui.TextStyle(

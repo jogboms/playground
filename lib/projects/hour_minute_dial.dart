@@ -36,7 +36,7 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
     ),
   );
 
-  AnimationController _controller;
+  late AnimationController _controller;
 
   void _animate(int index) {
     if (index == 0) {
@@ -86,7 +86,7 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
                       '${time.hour}'.padLeft(2, '0') + ':' + '${time.minute}'.padLeft(2, '0'),
                       style: Theme.of(context)
                           .textTheme
-                          .headline3
+                          .headline3!
                           .copyWith(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
                     );
                   },
@@ -110,7 +110,7 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
 }
 
 class TimeOfDayWidget extends LeafRenderObjectWidget {
-  const TimeOfDayWidget({Key key, @required this.vsync, @required this.value, @required this.onChanged})
+  const TimeOfDayWidget({Key? key, required this.vsync, required this.value, required this.onChanged})
       : super(key: key);
 
   final TickerProvider vsync;
@@ -134,10 +134,10 @@ enum TimeOfDayType { am, pm }
 
 class TimeOfDayRenderBox extends RenderBox {
   TimeOfDayRenderBox({
-    @required this.vsync,
-    @required TimeOfDayType value,
-    @required ValueChanged<TimeOfDayType> onChanged,
-  })  : _value = value,
+    required this.vsync,
+    required TimeOfDayType value,
+    required ValueChanged<TimeOfDayType> onChanged,
+  })   : _value = value,
         _onChanged = onChanged {
     gesture = TapGestureRecognizer()..onTapUp = _onTapUp;
     _selectedIndex = value.index;
@@ -161,16 +161,16 @@ class TimeOfDayRenderBox extends RenderBox {
     _value = value;
   }
 
-  TapGestureRecognizer gesture;
+  late TapGestureRecognizer gesture;
 
   static Color fontColor = Colors.white;
   static Color selectedFontColor = Colors.black;
 
-  int _selectedIndex;
-  Offset _selectedCenter;
+  int? _selectedIndex;
+  Offset? _selectedCenter;
 
-  AnimationController _controller;
-  Animation<Offset> _animation;
+  late AnimationController _controller;
+  late Animation<Offset> _animation;
 
   @override
   void attach(covariant PipelineOwner owner) {
@@ -279,7 +279,7 @@ class TimeOfDayRenderBox extends RenderBox {
     context.canvas.drawRRect(rrect, Paint()..color = Color(0x2C000000));
 
     context.canvas.drawCircle(
-      _selectedCenter,
+      _selectedCenter!,
       radius,
       Paint()..color = fontColor,
     );
@@ -302,7 +302,7 @@ class TimeOfDayRenderBox extends RenderBox {
   }
 
   void _drawParagraph(Canvas canvas, String text,
-      {@required Offset offset, @required Color color, @required double fontSize}) {
+      {required Offset offset, required Color color, required double fontSize}) {
     final paragraphConstraints = ui.ParagraphConstraints(width: fontSize * text.length);
     final paragraphBuilder = ui.ParagraphBuilder(ui.ParagraphStyle(textAlign: TextAlign.center))
       ..pushStyle(ui.TextStyle(fontSize: fontSize, color: color, fontWeight: FontWeight.bold))
@@ -315,7 +315,7 @@ class TimeOfDayRenderBox extends RenderBox {
 }
 
 class DialWidget extends LeafRenderObjectWidget {
-  const DialWidget({Key key, @required this.onChanged, @required this.vsync, @required this.time}) : super(key: key);
+  const DialWidget({Key? key, required this.onChanged, required this.vsync, required this.time}) : super(key: key);
 
   final TimeValueChanged onChanged;
   final TickerProvider vsync;
@@ -345,15 +345,15 @@ class DialParentData extends ContainerBoxParentData<DialItemRenderBox> {}
 
 class DialItemRenderBox extends RenderBox {
   DialItemRenderBox({
-    @required int value,
-    @required this.vsync,
-    @required this.color,
-    @required this.debugLabel,
-    @required this.padding,
-    @required this.alignment,
-    @required this.start,
-    @required this.interval,
-    @required this.onChanged,
+    required int value,
+    required this.vsync,
+    required this.color,
+    required this.debugLabel,
+    required this.padding,
+    required this.alignment,
+    required this.start,
+    required this.interval,
+    required this.onChanged,
   }) {
     drag = PanGestureRecognizer()
       ..onStart = _onDragStart
@@ -374,19 +374,19 @@ class DialItemRenderBox extends RenderBox {
   final ValueChanged<int> onChanged;
   final Color color;
 
-  DragGestureRecognizer drag;
+  late DragGestureRecognizer drag;
 
-  AnimationController _controller;
-  Animation<double> _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
-  Offset center;
-  double height;
-  double radius;
-  Path circularPath;
+  late Offset center;
+  late double height;
+  late double radius;
+  late Path circularPath;
 
   Offset _currentDragOffset = Offset.zero;
   double _currentAngle = 0.0;
-  int _value;
+  int? _value;
 
   static double fontSize = 20.0;
   static Color fontColor = Colors.white;
@@ -516,9 +516,9 @@ class DialItemRenderBox extends RenderBox {
       return;
     }
     _value = value;
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       HapticFeedback.selectionClick();
-      onChanged(_value);
+      onChanged(_value!);
     });
   }
 
@@ -603,7 +603,7 @@ class DialItemRenderBox extends RenderBox {
     }
   }
 
-  void _drawParagraph(Canvas canvas, String text, {@required Offset offset}) {
+  void _drawParagraph(Canvas canvas, String text, {required Offset offset}) {
     final paragraphConstraints = ui.ParagraphConstraints(width: fontSize * text.length);
     final paragraphBuilder = ui.ParagraphBuilder(ui.ParagraphStyle(textAlign: TextAlign.center))
       ..pushStyle(ui.TextStyle(fontSize: fontSize, color: fontColor, fontWeight: FontWeight.bold))
@@ -617,9 +617,9 @@ class DialItemRenderBox extends RenderBox {
 
 class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRenderBox, DialParentData> {
   DialRenderBox({
-    @required TimeValueChanged onChanged,
-    @required TickerProvider vsync,
-    @required TimeValue time,
+    required TimeValueChanged onChanged,
+    required TickerProvider vsync,
+    required TimeValue time,
   }) : _onChanged = onChanged {
     add(DialItemRenderBox(
       debugLabel: 'Hour',
@@ -654,7 +654,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
     _onChanged = value;
   }
 
-  TimeValue _time;
+  TimeValue _time = TimeValue(0, 0);
 
   set time(TimeValue value) {
     if (_time == value) {
@@ -686,9 +686,9 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
     const horizontalOffset = 16.0;
 
     var child = firstChild;
-    double previousRadius;
-    double firstRadius;
-    Offset firstCenter;
+    double? previousRadius;
+    double? firstRadius;
+    Offset? firstCenter;
     while (child != null) {
       final childHeight = DialItemRenderBox.fontSize + (child.padding * 2);
       final childRadius = previousRadius != null ? previousRadius + childHeight : firstChildRadius - horizontalOffset;
@@ -706,7 +706,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       firstRadius ??= childRadius;
     }
 
-    return Size(firstChildRadius * 2, firstRadius + previousRadius + (DialItemRenderBox.indicatorHeight * 5 / 2));
+    return Size(firstChildRadius * 2, firstRadius! + previousRadius! + (DialItemRenderBox.indicatorHeight * 5 / 2));
   }
 
   @override
@@ -718,10 +718,10 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
   bool get isRepaintBoundary => true;
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
+  bool hitTestChildren(BoxHitTestResult result, {Offset? position}) {
     var child = lastChild;
     while (child != null) {
-      if (child.hitTest(result, position: position)) {
+      if (child.hitTest(result, position: position!)) {
         return true;
       }
       child = (child.parentData as DialParentData).previousSibling;
@@ -737,8 +737,8 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
   @override
   void paint(PaintingContext context, Offset offset) {
     context.canvas.drawCircle(
-      firstChild.center + (firstChild.parentData as DialParentData).offset,
-      firstChild.radius,
+      firstChild!.center + (firstChild!.parentData as DialParentData).offset,
+      firstChild!.radius,
       Paint()..color = Colors.black26,
     );
 

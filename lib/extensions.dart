@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
 extension DoubleX on double {
@@ -47,7 +46,7 @@ extension NumX<T extends num> on T {
 extension SizeX on ui.Size {
   double get radius => shortestSide / 2;
 
-  ui.Size copyWith({double width, double height}) {
+  ui.Size copyWith({double? width, double? height}) {
     return ui.Size(width ?? this.width, height ?? this.height);
   }
 }
@@ -63,7 +62,7 @@ extension RectX on ui.Rect {
 extension CanvasX on Canvas {
   Rect drawText(
     String text, {
-    @required Offset center,
+    required Offset center,
     TextStyle style = const TextStyle(fontSize: 14.0, color: Color(0xFF333333), fontWeight: FontWeight.normal),
   }) {
     final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.rtl)

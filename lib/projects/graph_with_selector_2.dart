@@ -39,7 +39,7 @@ class _GraphWithSelectorIIState extends State<GraphWithSelectorII> with TickerPr
 }
 
 class GraphView extends ScrollView {
-  GraphView({Key key, @required this.values})
+  GraphView({Key? key, required this.values})
       : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
 
   final List<double> values;
@@ -53,7 +53,7 @@ class GraphView extends ScrollView {
 }
 
 class GraphViewWidget extends LeafRenderObjectWidget {
-  const GraphViewWidget({Key key, @required this.values}) : super(key: key);
+  const GraphViewWidget({Key? key, required this.values}) : super(key: key);
 
   final List<double> values;
 
@@ -64,18 +64,18 @@ class GraphViewWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(BuildContext context, covariant RenderGraphViewWidget renderObject) {
-    renderObject..values = values;
+    renderObject.values = values;
   }
 }
 
 class RenderGraphViewWidget extends RenderSliver {
-  RenderGraphViewWidget({@required List<double> values})
+  RenderGraphViewWidget({required List<double> values})
       : _values = values,
         _maxValue = values.reduce(math.max) {
     tap = TapGestureRecognizer()..onTapDown = _onTapDown;
   }
 
-  TapGestureRecognizer tap;
+  late TapGestureRecognizer tap;
 
   double _maxValue;
 
@@ -100,20 +100,20 @@ class RenderGraphViewWidget extends RenderSliver {
 
   Set<Rect> debugBounds = {};
 
-  Rect fillPathBounds;
+  late Rect fillPathBounds;
 
-  int _selectedIndex;
+  int? _selectedIndex;
 
   void _onTapDown(TapDownDetails details) {
     final offset = details.localPosition.dx + constraints.scrollOffset - (padding / 2);
-    _selectedIndex = interpolate(inputMax: geometry.maxPaintExtent - padding, outputMax: _itemCount - 1.0)(offset)
+    _selectedIndex = interpolate(inputMax: geometry!.maxPaintExtent - padding, outputMax: _itemCount - 1.0)(offset)
         .discretize(1)
         .toInt();
     markNeedsPaint();
   }
 
   @override
-  bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
+  bool hitTestSelf({required double mainAxisPosition, required double crossAxisPosition}) {
     return fillPathBounds.contains(Offset(mainAxisPosition, crossAxisPosition));
   }
 
@@ -188,7 +188,7 @@ class RenderGraphViewWidget extends RenderSliver {
     }
 
     // Draw selector background
-    final selectedOffset = _selectedIndex != null ? offsets[_selectedIndex] : null;
+    final selectedOffset = _selectedIndex != null ? offsets[_selectedIndex!] : null;
     if (selectedOffset != null) {
       final selectorBounds = Rect.fromCenter(
         center: Offset(selectedOffset.dx, viewportRect.center.dy),
@@ -211,7 +211,7 @@ class RenderGraphViewWidget extends RenderSliver {
     final spline = CatmullRomSpline(offsets).generateSamples();
     final curvedPath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
     for (final sample in spline) {
-      curvedPath..lineTo(sample.value.dx, sample.value.dy);
+      curvedPath.lineTo(sample.value.dx, sample.value.dy);
     }
 
     // Draw curved path

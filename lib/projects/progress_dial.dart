@@ -31,9 +31,9 @@ class _ProgressDialState extends State<ProgressDial> {
 }
 
 class ProgressDialWidget extends LeafRenderObjectWidget {
-  const ProgressDialWidget({Key key, this.onChanged}) : super(key: key);
+  const ProgressDialWidget({Key? key, this.onChanged}) : super(key: key);
 
-  final ValueChanged<int> onChanged;
+  final ValueChanged<int?>? onChanged;
 
   @override
   RenderProgressDial createRenderObject(BuildContext context) {
@@ -42,13 +42,13 @@ class ProgressDialWidget extends LeafRenderObjectWidget {
 
   @override
   void updateRenderObject(BuildContext context, covariant RenderProgressDial renderObject) {
-    renderObject..onChanged = onChanged;
+    renderObject.onChanged = onChanged;
   }
 }
 
 class RenderProgressDial extends RenderBox {
   RenderProgressDial({
-    ValueChanged<int> onChanged,
+    ValueChanged<int?>? onChanged,
   }) : _onChanged = onChanged {
     drag = PanGestureRecognizer()
       ..onStart = _onDragStart
@@ -58,9 +58,9 @@ class RenderProgressDial extends RenderBox {
     valueBuilder = interpolate(inputMax: totalAngle, outputMin: 0, outputMax: 40);
   }
 
-  DragGestureRecognizer drag;
-  Rect knobRect;
-  double Function(double input) valueBuilder;
+  late DragGestureRecognizer drag;
+  late Rect knobRect;
+  double Function(double input)? valueBuilder;
 
   static final totalAngle = 360.radians;
   static final startAngle = -90.radians;
@@ -72,9 +72,9 @@ class RenderProgressDial extends RenderBox {
   static const minRadius = 100.0;
   static const maxRadius = 180.0;
 
-  ValueChanged<int> _onChanged;
+  ValueChanged<int?>? _onChanged;
 
-  set onChanged(ValueChanged<int> onChanged) {
+  set onChanged(ValueChanged<int?>? onChanged) {
     if (_onChanged == onChanged) {
       return;
     }
@@ -83,7 +83,7 @@ class RenderProgressDial extends RenderBox {
 
   Offset _currentDragOffset = Offset.zero;
   double _currentAngle = 0.0;
-  int _value;
+  int? _value;
 
   void _onDragStart(DragStartDetails details) {
     _currentDragOffset = globalToLocal(details.globalPosition);
@@ -110,7 +110,7 @@ class RenderProgressDial extends RenderBox {
       return;
     }
     _currentAngle = value;
-    _onSelect(valueBuilder(value).round());
+    _onSelect(valueBuilder!(value).round());
     markNeedsPaint();
   }
 
@@ -119,7 +119,7 @@ class RenderProgressDial extends RenderBox {
       return;
     }
     _value = value;
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       HapticFeedback.selectionClick();
       _onChanged?.call(_value);
     });
@@ -170,7 +170,7 @@ class RenderProgressDial extends RenderBox {
       final it = (i * totalAngle.degrees / division).radians;
       _drawParagraph(
         canvas,
-        valueBuilder(it).round().toString(),
+        valueBuilder!(it).round().toString(),
         offset: toPolar(center, it + startAngle, outerRadius),
         color: labelColor,
         fontSize: labelFontRadius * 2,
@@ -263,7 +263,7 @@ class RenderProgressDial extends RenderBox {
     // Value
     final titleRect = _drawParagraph(
       canvas,
-      valueBuilder(angle).round().toString(),
+      valueBuilder!(angle).round().toString(),
       offset: center - Offset(0, titleFontRadius),
       color: Colors.white,
       fontSize: titleFontRadius * 2,
@@ -284,13 +284,13 @@ class RenderProgressDial extends RenderBox {
     );
   }
 
-  void _drawShadow(Canvas canvas, Rect rect, Color color, {bool useCenter = false, double elevation}) {
+  void _drawShadow(Canvas canvas, Rect rect, Color color, {bool useCenter = false, double? elevation}) {
     elevation ??= rect.radius * .25;
     canvas.drawShadow(Path()..addOval(rect.translate(0, useCenter ? -elevation : 0)), color, elevation, false);
   }
 
   Rect _drawParagraph(Canvas canvas, String text,
-      {@required Offset offset, @required Color color, @required double fontSize}) {
+      {required Offset offset, required Color color, required double fontSize}) {
     final builder = ui.ParagraphBuilder(ui.ParagraphStyle(textAlign: TextAlign.center))
       ..pushStyle(ui.TextStyle(fontSize: fontSize, color: color, fontWeight: FontWeight.w600))
       ..addText(text);

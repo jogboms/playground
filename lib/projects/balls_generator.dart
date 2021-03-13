@@ -8,7 +8,7 @@ import 'package:flutter/scheduler.dart';
 import '../extensions.dart';
 
 class BallsGenerator extends StatefulWidget {
-  const BallsGenerator({Key key}) : super(key: key);
+  const BallsGenerator({Key? key}) : super(key: key);
 
   @override
   _BallsGeneratorState createState() => _BallsGeneratorState();
@@ -25,8 +25,8 @@ class _BallsGeneratorState extends State<BallsGenerator> with SingleTickerProvid
 
 class BallsWidget extends LeafRenderObjectWidget {
   const BallsWidget({
-    Key key,
-    @required this.vsync,
+    Key? key,
+    required this.vsync,
   }) : super(key: key);
 
   final TickerProvider vsync;
@@ -39,14 +39,14 @@ class BallsWidget extends LeafRenderObjectWidget {
 
 class RenderBalls extends RenderProxyBox {
   RenderBalls({
-    @required this.vsync,
+    required this.vsync,
   });
 
   final TickerProvider vsync;
 
   int _elapsedTimeInMicroSeconds = 0;
 
-  Ticker _ticker;
+  late Ticker _ticker;
 
   final _colors = [
     Color(0xFFCCCC22),
@@ -85,8 +85,8 @@ class RenderBalls extends RenderProxyBox {
     _ticker.start();
   }
 
-  int maxTimeTaken;
-  List<Ball> balls;
+  int? maxTimeTaken;
+  late List<Ball> balls;
 
   void pump() {
     const radius = 15.0;
@@ -97,7 +97,6 @@ class RenderBalls extends RenderProxyBox {
     const minPixelsPerSecond = minVelocity * 60;
     maxTimeTaken = ((size.height * 2 / minPixelsPerSecond) + maxDelay).ceil();
 
-    final x = random(radius, size.width - radius);
     final dy = random(minVelocity, maxVelocity);
     balls.add(Ball(
       origin: Offset(size.width / 2, size.height - radius * 2),
@@ -118,14 +117,14 @@ class RenderBalls extends RenderProxyBox {
     balls = [];
     size = _size;
 
-    for (int i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
       pump();
     }
   }
 
   @override
   void paint(PaintingContext context, ui.Offset offset) {
-    for (int i = 0; i < balls.length; i++) {
+    for (var i = 0; i < balls.length; i++) {
       final ball = balls[i]..tick(_elapsedTimeInMicroSeconds);
       drawBall(context.canvas, ball, offset);
     }
@@ -138,15 +137,15 @@ class RenderBalls extends RenderProxyBox {
 
 class Ball {
   Ball({
-    @required this.origin,
-    @required Rect bounds,
-    @required this.velocity,
-    @required this.radius,
-    @required this.delay,
-    @required this.color,
-  })  : position = origin,
+    required this.origin,
+    required Rect bounds,
+    required this.velocity,
+    required this.radius,
+    required this.delay,
+    required this.color,
+  })   : position = origin,
         acceleration = Offset(0, .1),
-        this.bounds = bounds.deflate(radius),
+        bounds = bounds.deflate(radius),
         dy = velocity,
         gravity = Offset(0, 0.001),
         friction = .98;
@@ -186,12 +185,12 @@ class Ball {
     print([position, bounds, dy, !bounds.contains(position)]);
   }
 
-  double startTimeInSeconds;
+  double? startTimeInSeconds;
 
   void tick(int elapsedTimeInMicroSeconds) {
     final elapsedTimeInSeconds = elapsedTimeInMicroSeconds / Duration.microsecondsPerSecond;
     startTimeInSeconds ??= elapsedTimeInSeconds;
-    if ((elapsedTimeInSeconds - startTimeInSeconds) >= delay) {
+    if ((elapsedTimeInSeconds - startTimeInSeconds!) >= delay) {
       drop();
     }
   }

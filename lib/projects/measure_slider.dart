@@ -37,7 +37,7 @@ typedef LabelBuilder = String Function(double value);
 
 class MeasureView extends ScrollView {
   MeasureView({
-    Key key,
+    Key? key,
     this.unit = '',
     this.value,
     this.itemCount,
@@ -47,13 +47,13 @@ class MeasureView extends ScrollView {
     this.labelBuilder,
   }) : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
 
-  final double value;
+  final double? value;
   final String unit;
-  final int itemCount;
-  final double itemExtent;
-  final int itemTickStep;
-  final ValueChanged<double> onChanged;
-  final LabelBuilder labelBuilder;
+  final int? itemCount;
+  final double? itemExtent;
+  final int? itemTickStep;
+  final ValueChanged<double>? onChanged;
+  final LabelBuilder? labelBuilder;
 
   @override
   List<Widget> buildSlivers(BuildContext context) {
@@ -73,7 +73,7 @@ class MeasureView extends ScrollView {
 
 class MeasureViewWidget extends LeafRenderObjectWidget {
   const MeasureViewWidget({
-    Key key,
+    Key? key,
     this.value,
     this.unit,
     this.itemCount,
@@ -83,19 +83,19 @@ class MeasureViewWidget extends LeafRenderObjectWidget {
     this.labelBuilder,
   }) : super(key: key);
 
-  final double value;
-  final String unit;
-  final int itemCount;
-  final double itemExtent;
-  final int itemTickStep;
-  final ValueChanged<double> onChanged;
-  final LabelBuilder labelBuilder;
+  final double? value;
+  final String? unit;
+  final int? itemCount;
+  final double? itemExtent;
+  final int? itemTickStep;
+  final ValueChanged<double>? onChanged;
+  final LabelBuilder? labelBuilder;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderMeasureViewWidget(
       value: value,
-      controller: ScrollController()..attach(Scrollable.of(context).position),
+      controller: ScrollController()..attach(Scrollable.of(context)!.position),
       unit: unit,
       itemCount: itemCount,
       itemExtent: itemExtent,
@@ -120,14 +120,14 @@ class MeasureViewWidget extends LeafRenderObjectWidget {
 
 class RenderMeasureViewWidget extends RenderSliver {
   RenderMeasureViewWidget({
-    @required this.controller,
-    double value,
-    String unit,
-    int itemCount,
-    double itemExtent,
-    int itemTickStep,
-    ValueChanged<double> onChanged,
-    LabelBuilder labelBuilder,
+    required this.controller,
+    double? value,
+    String? unit,
+    int? itemCount,
+    double? itemExtent,
+    int? itemTickStep,
+    ValueChanged<double>? onChanged,
+    LabelBuilder? labelBuilder,
   })  : _unit = unit,
         _itemCount = itemCount ?? 20,
         _itemExtent = itemExtent ?? 80.0,
@@ -139,15 +139,15 @@ class RenderMeasureViewWidget extends RenderSliver {
 
   final ScrollController controller;
 
-  TapGestureRecognizer tap;
+  late TapGestureRecognizer tap;
 
   void _onTap(TapUpDetails details) {
     value = ((constraints.scrollOffset + details.globalPosition.dx - (padding / 2)) / _itemExtent) * _itemTickStep;
   }
 
-  String _unit;
+  String? _unit;
 
-  set unit(String unit) {
+  set unit(String? unit) {
     if (_unit == unit) {
       return;
     }
@@ -157,7 +157,7 @@ class RenderMeasureViewWidget extends RenderSliver {
 
   int _itemCount;
 
-  set itemCount(int itemCount) {
+  set itemCount(int? itemCount) {
     if (_itemCount == itemCount || itemCount == null) {
       return;
     }
@@ -168,7 +168,7 @@ class RenderMeasureViewWidget extends RenderSliver {
 
   double _itemExtent;
 
-  set itemExtent(double itemExtent) {
+  set itemExtent(double? itemExtent) {
     if (_itemExtent == itemExtent || itemExtent == null) {
       return;
     }
@@ -179,7 +179,7 @@ class RenderMeasureViewWidget extends RenderSliver {
 
   int _itemTickStep;
 
-  set itemTickStep(int itemTickStep) {
+  set itemTickStep(int? itemTickStep) {
     if (_itemExtent == itemTickStep || itemTickStep == null) {
       return;
     }
@@ -188,9 +188,9 @@ class RenderMeasureViewWidget extends RenderSliver {
     markNeedsPaint();
   }
 
-  ValueChanged<double> _onChanged;
+  ValueChanged<double>? _onChanged;
 
-  set onChanged(ValueChanged<double> onChanged) {
+  set onChanged(ValueChanged<double>? onChanged) {
     if (onChanged != null) {
       _onChanged = onChanged;
     }
@@ -198,29 +198,29 @@ class RenderMeasureViewWidget extends RenderSliver {
 
   LabelBuilder _labelBuilder;
 
-  set labelBuilder(LabelBuilder labelBuilder) {
+  set labelBuilder(LabelBuilder? labelBuilder) {
     if (labelBuilder != null) {
       _labelBuilder = labelBuilder;
     }
   }
 
-  double _selectedValue;
+  double? _selectedValue;
 
-  set value(double value) {
+  set value(double? value) {
     if (_selectedValue == value || value == null) {
       return;
     }
     final _value = (value / _itemTickStep).discretize(tickDivisions);
     _onSelectValue(_value);
     markNeedsPaint();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _animateTo(_value * _itemExtent));
+    WidgetsBinding.instance!.addPostFrameCallback((_) => _animateTo(_value * _itemExtent));
   }
 
   void _onSelectValue(double value) {
     if (_selectedValue == value) {
       return;
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       HapticFeedback.selectionClick();
       _onChanged?.call(value);
       _selectedValue = value;
@@ -245,7 +245,7 @@ class RenderMeasureViewWidget extends RenderSliver {
       );
 
   @override
-  bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
+  bool hitTestSelf({double? mainAxisPosition, double? crossAxisPosition}) {
     return true;
   }
 
@@ -324,7 +324,7 @@ class RenderMeasureViewWidget extends RenderSliver {
 
       // Draw labels
       if (isLargeTick) {
-        final t = ((normalizedHorizontalOffset - dx).abs() / _itemExtent).clamp(0.0, 1.0);
+        final num t = ((normalizedHorizontalOffset - dx).abs() / _itemExtent).clamp(0.0, 1.0);
         final fontSize = standardFontSize + (fontEnlargement * (1 - t));
         _drawLabel(
           canvas,
@@ -375,7 +375,7 @@ class RenderMeasureViewWidget extends RenderSliver {
     );
   }
 
-  void _drawLabel(Canvas canvas, String text, double fontSize, Offset offset, Color color, [bool shadow = false]) {
+  void _drawLabel(Canvas canvas, String? text, double fontSize, Offset offset, Color? color, [bool shadow = false]) {
     final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.rtl)
       ..text = TextSpan(
         text: text,
