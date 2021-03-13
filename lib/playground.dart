@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'extensions.dart';
+import 'interpolate.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -26,7 +27,28 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
       body: Center(
         child: SizedBox.fromSize(
           size: Size.square(640.0),
-          child: A(),
+          child: A(
+            values: [
+              U(
+                progress: 20,
+                icon: Icons.nightlight_round,
+                color: Color(0xFFFF7C31),
+                iconColor: Color(0xFFFFFFFF),
+              ),
+              U(
+                progress: 60,
+                icon: Icons.opacity,
+                color: Color(0xFF6706FF),
+                iconColor: Color(0xFFFFFFFF),
+              ),
+              U(
+                progress: 80,
+                icon: Icons.star,
+                color: Color(0xFFFF2F78),
+                iconColor: Color(0xFFFFFFFF),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -34,9 +56,18 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
 }
 
 class A extends LeafRenderObjectWidget {
+  const A({Key key, @required this.values}) : super(key: key);
+
+  final List<U> values;
+
   @override
   B createRenderObject(BuildContext context) {
-    return B();
+    return B(values: values);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, covariant B renderObject) {
+    renderObject..values = values;
   }
 }
 
@@ -55,6 +86,21 @@ class U {
 }
 
 class B extends RenderBox with RenderBoxDebugBounds {
+  B({@required List<U> values}) : _values = values;
+
+  static final startAngle = -90.radians;
+  static final angleBuilder = interpolate(inputMax: 100.0, outputMax: 359.0);
+
+  List<U> _values;
+
+  set values(List<U> values) {
+    if (values == _values) {
+      return;
+    }
+    _values = values;
+    markNeedsPaint();
+  }
+
   @override
   bool get sizedByParent => true;
 
@@ -69,37 +115,22 @@ class B extends RenderBox with RenderBoxDebugBounds {
     final bounds = offset & size;
     debugBounds.add(bounds);
 
-    final items = [
-      U(
-        progress: 0,
-        icon: Icons.nightlight_round,
-        color: Color(0xFFFF7C31),
-        iconColor: Color(0xFFFFFFFF),
-      ),
-      U(
-        progress: 0,
-        icon: Icons.opacity,
-        color: Color(0xFF951EFD),
-        iconColor: Color(0xFFFFFFFF),
-      ),
-      U(
-        progress: 0,
-        icon: Icons.star,
-        color: Color(0xFFFF2F78),
-        iconColor: Color(0xFFFFFFFF),
-      ),
-    ];
     final baseRadius = size.radius * .4;
     final ringSpacing = baseRadius * .05;
-    final ringWidth = (size.radius - baseRadius - (ringSpacing * (items.length - 1))) / items.length;
-    for (var i = 0; i < items.length; i++) {
-      final item = items[i];
-      _drawRing(
-        canvas,
-        sweepAngle: (90 * (i + 1)).radians,
+    final ringWidth = (size.radius - baseRadius - (ringSpacing * (_values.length - 1))) / _values.length;
+    for (var i = 0; i < _values.length; i++) {
+      final item = _values[i];
+      final paths = _computeRingPaths(
+        sweepAngle: angleBuilder(item.progress).radians,
         strokeWidth: ringWidth,
         center: bounds.center,
         radius: baseRadius + (ringWidth * (i + 1)) + (ringSpacing * i),
+      );
+      _drawRing(
+        canvas,
+        trackPath: paths.a,
+        progressPath: paths.b,
+        strokeWidth: ringWidth,
         color: item.color,
         icon: item.icon,
         iconColor: item.iconColor,
@@ -125,13 +156,34 @@ class B extends RenderBox with RenderBoxDebugBounds {
 
   void _drawRing(
     Canvas canvas, {
+    @required Path trackPath,
+    @required Path progressPath,
+    @required double strokeWidth,
+    @required Color color,
+    @required IconData icon,
+    @required Color iconColor,
+  }) {
+    canvas.drawPath(trackPath, Paint()..color = Color(0xFF2D2D2D));
+    debugPaths.add(trackPath);
+
+    canvas.drawPath(progressPath, Paint()..color = color);
+    debugPaths.add(progressPath);
+
+    final bounds = trackPath.getBounds();
+    final iconOffset = toPolar(bounds.center, startAngle, bounds.radius - strokeWidth / 2);
+    final iconBounds = canvas.drawText(
+      String.fromCharCode(icon.codePoint),
+      center: iconOffset,
+      style: TextStyle(fontFamily: icon.fontFamily, fontSize: strokeWidth * .5, color: iconColor),
+    );
+    debugBounds.add(iconBounds);
+  }
+
+  Pair<Path, Path> _computeRingPaths({
     @required double sweepAngle,
     @required double strokeWidth,
     @required Offset center,
     @required double radius,
-    @required Color color,
-    @required IconData icon,
-    @required Color iconColor,
   }) {
     final innerRadius = radius - strokeWidth;
     final trackPath = Path()
@@ -141,16 +193,13 @@ class B extends RenderBox with RenderBoxDebugBounds {
       ..relativeMoveTo(-strokeWidth, 0)
       ..relativeArcToPoint(Offset(-innerRadius * 2, 0), radius: Radius.circular(innerRadius), clockwise: false)
       ..relativeArcToPoint(Offset(innerRadius * 2, 0), radius: Radius.circular(innerRadius), clockwise: false);
-    canvas.drawPath(trackPath, Paint()..color = Color(0xFF2D2D2D));
-    debugPaths.add(trackPath);
 
-    final startAngle = -90.radians;
     final endAngle = sweepAngle + startAngle;
     final isLargeArc = endAngle >= 90.radians;
     final startOuterOffset = toPolar(center, startAngle, radius);
-    final startInnerOffset = toPolar(center, startAngle, radius - strokeWidth);
+    final startInnerOffset = toPolar(center, startAngle, innerRadius);
     final endOuterOffset = toPolar(center, endAngle, radius);
-    final endInnerOffset = toPolar(center, endAngle, radius - strokeWidth);
+    final endInnerOffset = toPolar(center, endAngle, innerRadius);
     final progressPath = Path()
       ..moveTo(startOuterOffset.dx, startOuterOffset.dy)
       ..arcToPoint(
@@ -161,20 +210,12 @@ class B extends RenderBox with RenderBoxDebugBounds {
       ..arcToPoint(endInnerOffset, radius: Radius.circular(strokeWidth / 2))
       ..arcToPoint(
         startInnerOffset,
-        radius: Radius.circular(radius - strokeWidth),
+        radius: Radius.circular(innerRadius),
         largeArc: isLargeArc,
         clockwise: false,
       )
       ..arcToPoint(startOuterOffset, radius: Radius.circular(strokeWidth / 2));
-    canvas.drawPath(progressPath, Paint()..color = color);
-    debugPaths.add(progressPath);
 
-    final iconOffset = toPolar(center, startAngle, radius - strokeWidth / 2);
-    final iconBounds = canvas.drawText(
-      String.fromCharCode(icon.codePoint),
-      center: iconOffset,
-      style: TextStyle(fontFamily: Icons.star.fontFamily, fontSize: strokeWidth * .5, color: iconColor),
-    );
-    debugBounds.add(iconBounds);
+    return Pair(trackPath, progressPath);
   }
 }
