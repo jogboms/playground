@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
@@ -23,39 +22,64 @@ class Playground extends StatefulWidget {
 }
 
 class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
-  final items = [
-    U(
-      progress: math.Random().nextInt(100).toDouble(),
-      icon: Icons.nightlight_round,
-      color: Color(0xFFFF7C31),
-      iconColor: Color(0xFFFFFFFF),
-    ),
-    U(
-      progress: math.Random().nextInt(100).toDouble(),
-      icon: Icons.opacity,
-      color: Color(0xFF6706FF),
-      iconColor: Color(0xFFFFFFFF),
-    ),
-    U(
-      progress: math.Random().nextInt(100).toDouble(),
-      icon: Icons.star,
-      color: Color(0xFFFF2F78),
-      iconColor: Color(0xFFFFFFFF),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final items = [
+      U(
+        title: 'Activity',
+        progress: 56,
+        icon: Icons.nightlight_round,
+        color: Color(0xFFFF7C31),
+        iconColor: Color(0xFFFFFFFF),
+      ),
+      U(
+        title: 'Habits',
+        progress: 69,
+        icon: Icons.opacity,
+        color: Color(0xFF6706FF),
+        iconColor: Color(0xFFFFFFFF),
+      ),
+      U(
+        title: 'Rest',
+        progress: 30,
+        icon: Icons.star,
+        color: Color(0xFFFF2F78),
+        iconColor: Color(0xFFFFFFFF),
+      ),
+    ];
+
     return Scaffold(
       backgroundColor: Color(0xFF161616),
-      body: Center(
-        child: SizedBox.fromSize(
-          size: Size.square(640.0),
-          child: A(
-            vsync: this,
-            values: items,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox.fromSize(
+            size: Size.square(480.0),
+            child: A(vsync: this, values: items),
           ),
-        ),
+          SizedBox(height: 64),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              for (final item in items)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(color: item.color, shape: BoxShape.circle),
+                      padding: EdgeInsets.all(12),
+                      child: Icon(item.icon, size: 42),
+                    ),
+                    SizedBox(height: 18),
+                    Text(
+                      item.title,
+                      style: TextStyle(color: Colors.white60, fontWeight: FontWeight.w400, fontSize: 18),
+                    ),
+                  ],
+                )
+            ],
+          )
+        ],
       ),
     );
   }
@@ -82,12 +106,14 @@ class A extends LeafRenderObjectWidget {
 
 class U {
   const U({
+    @required this.title,
     @required this.progress,
     @required this.color,
     @required this.icon,
     @required this.iconColor,
   });
 
+  final String title;
   final double progress;
   final Color color;
   final IconData icon;
