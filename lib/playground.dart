@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
@@ -22,6 +23,27 @@ class Playground extends StatefulWidget {
 }
 
 class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
+  final items = [
+    U(
+      progress: math.Random().nextInt(100).toDouble(),
+      icon: Icons.nightlight_round,
+      color: Color(0xFFFF7C31),
+      iconColor: Color(0xFFFFFFFF),
+    ),
+    U(
+      progress: math.Random().nextInt(100).toDouble(),
+      icon: Icons.opacity,
+      color: Color(0xFF6706FF),
+      iconColor: Color(0xFFFFFFFF),
+    ),
+    U(
+      progress: math.Random().nextInt(100).toDouble(),
+      icon: Icons.star,
+      color: Color(0xFFFF2F78),
+      iconColor: Color(0xFFFFFFFF),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,26 +52,8 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
         child: SizedBox.fromSize(
           size: Size.square(640.0),
           child: A(
-            values: [
-              U(
-                progress: 20,
-                icon: Icons.nightlight_round,
-                color: Color(0xFFFF7C31),
-                iconColor: Color(0xFFFFFFFF),
-              ),
-              U(
-                progress: 60,
-                icon: Icons.opacity,
-                color: Color(0xFF6706FF),
-                iconColor: Color(0xFFFFFFFF),
-              ),
-              U(
-                progress: 80,
-                icon: Icons.star,
-                color: Color(0xFFFF2F78),
-                iconColor: Color(0xFFFFFFFF),
-              ),
-            ],
+            vsync: this,
+            values: items,
           ),
         ),
       ),
@@ -58,18 +62,21 @@ class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
 }
 
 class A extends LeafRenderObjectWidget {
-  const A({Key key, @required this.values}) : super(key: key);
+  const A({Key key, @required this.vsync, @required this.values}) : super(key: key);
 
+  final TickerProvider vsync;
   final List<U> values;
 
   @override
   B createRenderObject(BuildContext context) {
-    return B(values: values);
+    return B(vsync: vsync, values: values);
   }
 
   @override
   void updateRenderObject(BuildContext context, covariant B renderObject) {
-    renderObject..values = values;
+    renderObject
+      ..vsync = vsync
+      ..values = values;
   }
 }
 
@@ -88,7 +95,11 @@ class U {
 }
 
 class B extends RenderBox with RenderBoxDebugBounds {
-  B({@required List<U> values}) : _values = values;
+  B({@required TickerProvider vsync, @required List<U> values})
+      : _vsync = vsync,
+        _values = values;
+
+  AnimationController animation;
 
   static final startAngle = -90.radians;
   static final angleBuilder = interpolate(inputMax: 100.0, outputMax: 359.0);
@@ -101,7 +112,19 @@ class B extends RenderBox with RenderBoxDebugBounds {
       return;
     }
     _values = values;
+    animation.forward(from: 0.0);
     markNeedsPaint();
+  }
+
+  TickerProvider _vsync;
+
+  set vsync(TickerProvider vsync) {
+    assert(vsync != null);
+    if (vsync == _vsync) {
+      return;
+    }
+    _vsync = vsync;
+    animation.resync(_vsync);
   }
 
   int _selectedHitTestIndex;
@@ -111,6 +134,22 @@ class B extends RenderBox with RenderBoxDebugBounds {
     selectedIndex = _selectedHitTestIndex == selectedIndex ? null : _selectedHitTestIndex;
     HapticFeedback.selectionClick();
     markNeedsPaint();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+
+    animation = AnimationController(vsync: _vsync, duration: Duration(milliseconds: _values.length * 500))
+      ..addListener(markNeedsPaint)
+      ..forward();
+  }
+
+  @override
+  void detach() {
+    animation.removeListener(markNeedsPaint);
+
+    super.detach();
   }
 
   @override
@@ -153,8 +192,9 @@ class B extends RenderBox with RenderBoxDebugBounds {
     final ringWidth = (size.radius - baseRadius - (ringSpacing * (_values.length - 1))) / _values.length;
     for (var i = 0; i < _values.length; i++) {
       final item = _values[i];
+      final animatedValue = Interval(i / _values.length, (i + 1) / _values.length).transform(animation.value);
       final paths = _computeRingPaths(
-        sweepAngle: angleBuilder(item.progress).radians,
+        sweepAngle: angleBuilder(item.progress * animatedValue).radians,
         strokeWidth: ringWidth,
         center: bounds.center,
         radius: baseRadius + (ringWidth * (i + 1)) + (ringSpacing * i),
