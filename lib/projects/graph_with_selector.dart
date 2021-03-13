@@ -32,7 +32,7 @@ class _GraphWithSelectorState extends State<GraphWithSelector> with TickerProvid
 }
 
 class GraphView extends ScrollView {
-  GraphView({Key key, @required this.vsync, @required this.values})
+  GraphView({Key? key, required this.vsync, required this.values})
       : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
 
   final TickerProvider vsync;
@@ -47,7 +47,7 @@ class GraphView extends ScrollView {
 }
 
 class GraphViewWidget extends LeafRenderObjectWidget {
-  const GraphViewWidget({Key key, @required this.vsync, @required this.values}) : super(key: key);
+  const GraphViewWidget({Key? key, required this.vsync, required this.values}) : super(key: key);
 
   final TickerProvider vsync;
   final List<double> values;
@@ -56,7 +56,7 @@ class GraphViewWidget extends LeafRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return RenderGraphViewWidget(
       vsync: vsync,
-      controller: ScrollController()..attach(Scrollable.of(context).position),
+      controller: ScrollController()..attach(Scrollable.of(context)!.position),
       values: values,
     );
   }
@@ -71,10 +71,10 @@ class GraphViewWidget extends LeafRenderObjectWidget {
 
 class RenderGraphViewWidget extends RenderSliver {
   RenderGraphViewWidget({
-    @required TickerProvider vsync,
-    @required List<double> values,
-    @required this.controller,
-  })  : _vsync = vsync,
+    required TickerProvider vsync,
+    required List<double> values,
+    required this.controller,
+  })   : _vsync = vsync,
         _values = values,
         _maxValue = values.reduce(math.max) {
     tap = TapGestureRecognizer()..onTapDown = _onTapDown;
@@ -82,15 +82,14 @@ class RenderGraphViewWidget extends RenderSliver {
 
   final ScrollController controller;
 
-  TapGestureRecognizer tap;
+  late TapGestureRecognizer tap;
 
   double _maxValue;
-  AnimationController animation;
+  late AnimationController animation;
 
   TickerProvider _vsync;
 
   set vsync(TickerProvider vsync) {
-    assert(vsync != null);
     if (vsync == _vsync) {
       return;
     }
@@ -116,15 +115,15 @@ class RenderGraphViewWidget extends RenderSliver {
   static const selectorColor = Color(0xFFFFFFFF);
   static const backgroundColor = Color(0xFF000000);
 
-  Set<Rect> debugBounds = {};
+  Set<Rect?> debugBounds = {};
 
-  Rect fillPathBounds;
+  Rect? fillPathBounds;
 
-  int _selectedIndex;
+  int? _selectedIndex;
 
   void _onTapDown(TapDownDetails details) {
     final offset = details.localPosition.dx + constraints.scrollOffset - (padding / 2);
-    _selectedIndex = interpolate(inputMax: geometry.maxPaintExtent - padding, outputMax: _itemCount - 1.0)(offset)
+    _selectedIndex = interpolate(inputMax: geometry!.maxPaintExtent - padding, outputMax: _itemCount - 1.0)(offset)
         .discretize(1)
         .toInt();
     markNeedsPaint();
@@ -142,7 +141,7 @@ class RenderGraphViewWidget extends RenderSliver {
       ..addListener(markNeedsPaint)
       ..forward();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       controller.animateTo(
         500, // You can do some calculations here using the geometry
         duration: Duration(milliseconds: 10000),
@@ -153,7 +152,9 @@ class RenderGraphViewWidget extends RenderSliver {
 
   @override
   void detach() {
-    animation.removeListener(markNeedsPaint);
+    animation
+      ..removeListener(markNeedsPaint)
+      ..dispose();
 
     super.detach();
   }
@@ -162,8 +163,8 @@ class RenderGraphViewWidget extends RenderSliver {
   bool get isRepaintBoundary => true;
 
   @override
-  bool hitTestSelf({double mainAxisPosition, double crossAxisPosition}) {
-    return fillPathBounds.contains(Offset(mainAxisPosition, crossAxisPosition));
+  bool hitTestSelf({required double mainAxisPosition, required double crossAxisPosition}) {
+    return fillPathBounds!.contains(Offset(mainAxisPosition, crossAxisPosition));
   }
 
   @override
@@ -224,7 +225,7 @@ class RenderGraphViewWidget extends RenderSliver {
     final spline = CatmullRomSpline(offsets).generateSamples(end: math.max(1e-10, animation.value));
     final curvedPath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
     for (final sample in spline) {
-      curvedPath..lineTo(sample.value.dx, sample.value.dy);
+      curvedPath.lineTo(sample.value.dx, sample.value.dy);
     }
 
     // Draw filled curved path
@@ -241,7 +242,7 @@ class RenderGraphViewWidget extends RenderSliver {
           stops: [0.6, 1.0],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-        ).createShader(fillPathBounds),
+        ).createShader(fillPathBounds!),
     );
 
     // Draw curved path
@@ -259,7 +260,7 @@ class RenderGraphViewWidget extends RenderSliver {
     if (_selectedIndex != null) {
       const verticalOffset = 4.0;
       const circleRation = 2.5;
-      final selectedOffset = offsets[_selectedIndex];
+      final selectedOffset = offsets[_selectedIndex!];
       canvas.drawLine(
         Offset(selectedOffset.dx, viewportRect.top + verticalOffset),
         Offset(selectedOffset.dx, viewportRect.bottom - verticalOffset),
@@ -282,7 +283,7 @@ class RenderGraphViewWidget extends RenderSliver {
       if (debugPaintSizeEnabled) {
         debugBounds.forEach((bounds) {
           context.canvas.drawRect(
-              bounds,
+              bounds!,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));

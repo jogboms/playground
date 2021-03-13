@@ -38,9 +38,9 @@ class _GaugeMeterState extends State<GaugeMeter> {
 
 class GaugeMeterWidget extends LeafRenderObjectWidget {
   GaugeMeterWidget({
-    @required this.value,
-    @required this.min,
-    @required this.max,
+    required this.value,
+    required this.min,
+    required this.max,
     this.divisions = const [],
     this.onChanged,
   })  : assert(value >= min && value <= max),
@@ -50,7 +50,7 @@ class GaugeMeterWidget extends LeafRenderObjectWidget {
   final double min;
   final double max;
   final List<Pair2<double, String, Color>> divisions;
-  final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChanged;
 
   @override
   RenderGaugeMeter createRenderObject(BuildContext context) {
@@ -70,11 +70,11 @@ class GaugeMeterWidget extends LeafRenderObjectWidget {
 
 class RenderGaugeMeter extends RenderBox {
   RenderGaugeMeter({
-    @required double value,
-    @required double min,
-    @required double max,
-    @required List<Pair2<double, String, Color>> divisions,
-    ValueChanged<double> onChanged,
+    required double value,
+    required double min,
+    required double max,
+    required List<Pair2<double, String, Color>> divisions,
+    ValueChanged<double>? onChanged,
   })  : _value = value,
         _min = min,
         _max = max,
@@ -87,9 +87,9 @@ class RenderGaugeMeter extends RenderBox {
       ..onUpdate = _onUpdateDrag;
   }
 
-  PanGestureRecognizer drag;
-  Rect gaugeBounds;
-  Rect cursorBounds;
+  late PanGestureRecognizer drag;
+  late Rect gaugeBounds;
+  late Rect cursorBounds;
 
   double _currentPercentage;
   double _value;
@@ -132,9 +132,9 @@ class RenderGaugeMeter extends RenderBox {
     markNeedsPaint();
   }
 
-  ValueChanged<double> _onChanged;
+  ValueChanged<double>? _onChanged;
 
-  set onChanged(ValueChanged<double> onChanged) {
+  set onChanged(ValueChanged<double>? onChanged) {
     _onChanged = onChanged;
   }
 
@@ -185,10 +185,10 @@ class RenderGaugeMeter extends RenderBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
-    final preferredWidth = (size.shortestSide * .9).clamp(200.0, 800.0);
+    final num preferredWidth = (size.shortestSide * .9).clamp(200.0, 800.0);
     final bounds = Rect.fromCenter(
       center: size.center(offset),
-      width: preferredWidth,
+      width: preferredWidth as double,
       height: preferredWidth / 2,
     );
 
@@ -283,15 +283,15 @@ class RenderGaugeMeter extends RenderBox {
     );
   }
 
-  static double _valueToPercentage(double value, {double min, double max}) {
+  static double _valueToPercentage(double value, {double? min, double? max}) {
     return interpolate(inputMin: min, inputMax: max)(value);
   }
 
-  static double _valueToAngle(double value, {double min, double max}) {
+  static double _valueToAngle(double value, {double? min, double? max}) {
     return _valueToPercentage(value, min: min, max: max) * maxSweepAngle;
   }
 
-  static double _percentageToValue(double value, {double min, double max}) {
+  static double _percentageToValue(double value, {double? min, double? max}) {
     return interpolate(outputMin: min, outputMax: max)(value);
   }
 
@@ -305,7 +305,7 @@ class RenderGaugeMeter extends RenderBox {
     return Pair(_divisions[0].b, _divisions[0].c);
   }
 
-  void _drawLabel(Canvas canvas, String text, {double fontSize, Offset center, Color color}) {
+  void _drawLabel(Canvas canvas, String text, {double? fontSize, required Offset center, Color? color}) {
     final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.rtl)
       ..text = TextSpan(text: text, style: TextStyle(color: color, fontSize: fontSize))
       ..layout();

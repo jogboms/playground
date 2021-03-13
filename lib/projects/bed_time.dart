@@ -22,7 +22,7 @@ class _BedTimeState extends State<BedTime> {
 
   TimeOfDay get _sleepTime => _bedTime.subtract(_wakeTime);
 
-  String _addZeroes(int value) => value.toString().padLeft(2, "0");
+  String _addZeroes(int value) => value.toString().padLeft(2, '0');
 
   Widget _buildTopTitle(String title, IconData icon, TimeOfDay time) {
     return Column(
@@ -31,14 +31,14 @@ class _BedTimeState extends State<BedTime> {
           TextSpan(children: [
             WidgetSpan(child: Icon(icon, size: 18, color: mutedTextColor)),
             TextSpan(
-              text: " $title",
+              text: ' $title',
               style: TextStyle(fontSize: 18, color: mutedTextColor, fontWeight: FontWeight.w500),
             ),
           ]),
         ),
         SizedBox(height: 4),
         Text(
-          "${time.hourOfPeriod == 0 ? 12 : _addZeroes(time.hourOfPeriod)}:${_addZeroes(time.minute)} ${time.periodShort.toUpperCase()}",
+          '${time.hourOfPeriod == 0 ? 12 : _addZeroes(time.hourOfPeriod)}:${_addZeroes(time.minute)} ${time.periodShort.toUpperCase()}',
           style: TextStyle(fontSize: 28, color: Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
         ),
       ],
@@ -57,9 +57,9 @@ class _BedTimeState extends State<BedTime> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildTopTitle("BEDTIME", Icons.king_bed_rounded, _bedTime),
+                _buildTopTitle('BEDTIME', Icons.king_bed_rounded, _bedTime),
                 SizedBox(width: 32),
-                _buildTopTitle("WAKE UP", Icons.notifications, _wakeTime),
+                _buildTopTitle('WAKE UP', Icons.notifications, _wakeTime),
               ],
             ),
             SizedBox(height: 24),
@@ -76,14 +76,14 @@ class _BedTimeState extends State<BedTime> {
             ),
             SizedBox(height: 24),
             Text(
-              "${_sleepTime.hour} hr" + (_sleepTime.minute > 0 ? " ${_sleepTime.minute} min" : ""),
+              '${_sleepTime.hour} hr' + (_sleepTime.minute > 0 ? ' ${_sleepTime.minute} min' : ''),
               style: TextStyle(fontSize: 24, color: Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 10),
             Text(
               _sleepTime.hour > threshold
-                  ? "This schedule does not meet your sleep goal."
-                  : "This schedule meets your sleep goal.",
+                  ? 'This schedule does not meet your sleep goal.'
+                  : 'This schedule meets your sleep goal.',
               style: TextStyle(color: mutedTextColor, fontWeight: FontWeight.w600),
             ),
           ],
@@ -96,17 +96,15 @@ class _BedTimeState extends State<BedTime> {
 typedef BedTimeCallback = void Function(TimeOfDay bedTime, TimeOfDay wakeTime);
 
 class BedTimeWidget extends LeafRenderObjectWidget {
-  BedTimeWidget({
-    Key key,
+  const BedTimeWidget({
+    Key? key,
     this.onChange,
-    this.bedTime,
-    this.wakeTime,
-    @required this.threshold,
-  })  : assert(bedTime != null),
-        assert(wakeTime != null),
-        super(key: key);
+    required this.bedTime,
+    required this.wakeTime,
+    required this.threshold,
+  }) : super(key: key);
 
-  final BedTimeCallback onChange;
+  final BedTimeCallback? onChange;
   final double threshold;
   final TimeOfDay bedTime;
   final TimeOfDay wakeTime;
@@ -128,11 +126,11 @@ class BedTimeWidget extends LeafRenderObjectWidget {
 
 class RenderSlideButton extends RenderBox {
   RenderSlideButton({
-    BedTimeCallback onChange,
-    double threshold,
-    TimeOfDay bedTime,
-    TimeOfDay wakeTime,
-  })  : _onChange = onChange,
+    BedTimeCallback? onChange,
+    double? threshold,
+    required TimeOfDay bedTime,
+    required TimeOfDay wakeTime,
+  })   : _onChange = onChange,
         _threshold = threshold,
         _bedTime = bedTime,
         _wakeTime = wakeTime {
@@ -149,7 +147,7 @@ class RenderSlideButton extends RenderBox {
     _selectedSleepHours = bedTime.difference(wakeTime);
   }
 
-  DragGestureRecognizer drag;
+  late DragGestureRecognizer drag;
 
   TimeOfDay _bedTime;
 
@@ -169,7 +167,7 @@ class RenderSlideButton extends RenderBox {
     _wakeTime = wakeTime;
   }
 
-  double _threshold;
+  double? _threshold;
 
   set threshold(double threshold) {
     if (threshold == _threshold) {
@@ -179,15 +177,15 @@ class RenderSlideButton extends RenderBox {
     markNeedsPaint();
   }
 
-  BedTimeCallback _onChange;
+  BedTimeCallback? _onChange;
 
-  set onChange(BedTimeCallback onChange) {
+  set onChange(BedTimeCallback? onChange) {
     _onChange = onChange;
   }
 
-  Path knobPath;
-  Rect startHandleBounds;
-  Rect endHandleBounds;
+  late Path knobPath;
+  late Rect startHandleBounds;
+  late Rect endHandleBounds;
 
   double _startAngle = 0.0;
   double _sweepAngle = 0.0;
@@ -263,7 +261,7 @@ class RenderSlideButton extends RenderBox {
     if (_selectedBedTimeHours != selectedBedTimeHours ||
         _selectedWakeTimeHours != selectedWakeUpTimeHours ||
         _selectedSleepHours != selectedHours) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
         HapticFeedback.selectionClick();
         _onChange?.call(
           toTimeOfDay(selectedBedTimeHours),
@@ -322,13 +320,13 @@ class RenderSlideButton extends RenderBox {
     final tickLength = knobThickness / 40;
     final tickPadding = clockRadius / 16;
     final tickRadius = clockRadius - tickPadding;
-    final tickDivisions = 3.75;
+    const tickDivisions = 3.75;
     final tickTextFontSize = tickLength * 10;
     final tickTextPadding = tickPadding * 1.25;
     final tickColor = Color(0x50FFFFFF);
 
     // Draw ticks
-    for (int i = 0; i < (360 / tickDivisions); i++) {
+    for (var i = 0; i < (360 / tickDivisions); i++) {
       final index = i * tickDivisions;
       final strokeRadius = i % 4 == 0 ? (tickLength * 4) : tickLength;
       final angle = index.radians + angleOffset;
@@ -347,7 +345,7 @@ class RenderSlideButton extends RenderBox {
         final pair = _hourTextBuilder(hour);
         final textBounds = _drawParagraph(
           canvas,
-          "${pair.a}${pair.b}",
+          '${pair.a}${pair.b}',
           offset: toPolar(
             center,
             angle,
@@ -386,7 +384,7 @@ class RenderSlideButton extends RenderBox {
     final innerStartOffset = toPolar(center, startAngle, innerKnobRadius);
     final endOffset = toPolar(center, endAngle, knobRadius);
     final innerEndOffset = toPolar(center, endAngle, innerKnobRadius);
-    final knobColor = _selectedSleepHours > _threshold ? clockBackgroundColor : Color(0xFFFF9F0A);
+    final knobColor = _selectedSleepHours > _threshold! ? clockBackgroundColor : Color(0xFFFF9F0A);
 
     knobPath = Path()
       ..moveTo(startOffset.dx, startOffset.dy)
@@ -402,8 +400,8 @@ class RenderSlideButton extends RenderBox {
     canvas.drawPath(knobPath, Paint()..color = knobColor);
 
     final strokeRadius = knobThickness / 3;
-    final divisions = 3.0;
-    for (int i = 0; i < (360 / divisions); i++) {
+    const divisions = 3.0;
+    for (var i = 0; i < (360 / divisions); i++) {
       final index = i * divisions;
       canvas.drawLine(
         toPolar(center, index.radians, knobRadius - strokeRadius),
@@ -418,9 +416,9 @@ class RenderSlideButton extends RenderBox {
     // Draw handles
     final handleSize = Size.square(knobThickness);
     final selectedHandleStateColor = Color.lerp(knobColor, Color(0xFF000000), .25);
-    final fontColor = _selectedSleepHours > _threshold ? tickColor : Color(0x99000000);
+    final fontColor = _selectedSleepHours > _threshold! ? tickColor : Color(0x99000000);
     startHandleBounds = Rect.fromCenter(
-      center: Offset.lerp(startOffset, innerStartOffset, .5),
+      center: Offset.lerp(startOffset, innerStartOffset, .5)!,
       width: handleSize.width,
       height: handleSize.height,
     );
@@ -429,11 +427,11 @@ class RenderSlideButton extends RenderBox {
       icon: Icons.king_bed_rounded,
       offset: startHandleBounds.center,
       radius: handleSize.radius,
-      color: _selectedStartHandle ? selectedHandleStateColor : knobColor,
+      color: _selectedStartHandle ? selectedHandleStateColor! : knobColor,
       fontColor: fontColor,
     );
     endHandleBounds = Rect.fromCenter(
-      center: Offset.lerp(endOffset, innerEndOffset, .5),
+      center: Offset.lerp(endOffset, innerEndOffset, .5)!,
       width: handleSize.width,
       height: handleSize.height,
     );
@@ -442,18 +440,18 @@ class RenderSlideButton extends RenderBox {
       icon: Icons.notifications,
       offset: endHandleBounds.center,
       radius: handleSize.radius,
-      color: _selectedEndHandle ? selectedHandleStateColor : knobColor,
+      color: _selectedEndHandle ? selectedHandleStateColor! : knobColor,
       fontColor: fontColor,
     );
   }
 
   void _drawKnobHandle({
-    @required Canvas canvas,
-    @required IconData icon,
-    @required Offset offset,
-    @required double radius,
-    @required Color color,
-    @required Color fontColor,
+    required Canvas canvas,
+    required IconData icon,
+    required Offset offset,
+    required double radius,
+    required Color color,
+    required Color fontColor,
   }) {
     canvas.drawCircle(offset, radius, Paint()..color = color);
     _drawParagraph(
@@ -470,11 +468,11 @@ class RenderSlideButton extends RenderBox {
   Rect _drawParagraph(
     Canvas canvas,
     String text, {
-    @required Offset offset,
-    @required Color color,
-    @required double fontSize,
-    String fontFamily,
-    FontWeight fontWeight,
+    required Offset offset,
+    required Color color,
+    required double fontSize,
+    String? fontFamily,
+    FontWeight? fontWeight,
   }) {
     final builder = ui.ParagraphBuilder(ui.ParagraphStyle(textAlign: TextAlign.center))
       ..pushStyle(ui.TextStyle(
@@ -494,7 +492,7 @@ class RenderSlideButton extends RenderBox {
 
   Pair<int, String> _hourTextBuilder(int hour) {
     final _hour = hour.normalize(TimeOfDay.hoursPerPeriod);
-    final mod = _hour % 6 == 0 ? (hour >= TimeOfDay.hoursPerPeriod ? "PM" : "AM") : "";
+    final mod = _hour % 6 == 0 ? (hour >= TimeOfDay.hoursPerPeriod ? 'PM' : 'AM') : '';
     return Pair(_hour == 0 ? TimeOfDay.hoursPerPeriod : _hour, mod);
   }
 

@@ -24,19 +24,19 @@ class GradientRangeSelector extends StatelessWidget {
                   Expanded(
                     child: Text(
                       '${value.a.toStringAsFixed(1)}',
-                      style: Theme.of(context).textTheme.headline2.copyWith(color: Colors.white),
+                      style: Theme.of(context).textTheme.headline2!.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
                   Text(
                     '-',
-                    style: Theme.of(context).textTheme.bodyText1.copyWith(color: Colors.white),
+                    style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                   Expanded(
                     child: Text(
                       '${value.b.toStringAsFixed(1)}',
-                      style: Theme.of(context).textTheme.headline3.copyWith(color: Colors.white),
+                      style: Theme.of(context).textTheme.headline3!.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -48,7 +48,7 @@ class GradientRangeSelector extends StatelessWidget {
               lowerValue: valueNotifier.value.a,
               upperValue: valueNotifier.value.b,
               max: maxValue,
-              labelBuilder: (value) => value.toInt().toString(),
+              labelBuilder: (value) => value!.toInt().toString(),
               onChanged: (l, u) => valueNotifier.value = Pair(l, u),
             ),
           ],
@@ -59,31 +59,25 @@ class GradientRangeSelector extends StatelessWidget {
 }
 
 typedef RangeSliderCallback = void Function(double lowerValue, double upperValue);
-typedef LabelBuilder = String Function(double value);
+typedef LabelBuilder = String Function(double? value);
 
 class RangeSlider extends LeafRenderObjectWidget {
   const RangeSlider({
-    Key key,
+    Key? key,
     this.min = 0.0,
-    @required this.max,
-    @required this.lowerValue,
-    @required this.upperValue,
-    @required this.labelBuilder,
+    required this.max,
+    required this.lowerValue,
+    required this.upperValue,
+    required this.labelBuilder,
     this.divisions = 50,
     this.onChanged,
-  })  : assert(min != null),
-        assert(max != null),
-        assert(min <= max),
-        assert(divisions != null),
+  })  : assert(min <= max),
         assert(divisions > 0),
-        assert(labelBuilder != null),
-        assert(lowerValue != null),
-        assert(upperValue != null),
         assert(lowerValue >= min && lowerValue <= max),
         assert(upperValue > lowerValue && upperValue <= max),
         super(key: key);
 
-  final RangeSliderCallback onChanged;
+  final RangeSliderCallback? onChanged;
   final double lowerValue;
   final double upperValue;
   final double min;
@@ -119,13 +113,13 @@ class RangeSlider extends LeafRenderObjectWidget {
 
 class _RenderRangeSlider extends RenderBox {
   _RenderRangeSlider({
-    double lowerValue,
-    double upperValue,
-    double min,
-    double max,
-    int divisions,
-    LabelBuilder labelBuilder,
-    RangeSliderCallback onChanged,
+    double? lowerValue,
+    double? upperValue,
+    double? min,
+    double? max,
+    int? divisions,
+    LabelBuilder? labelBuilder,
+    RangeSliderCallback? onChanged,
   })  : _divisions = divisions,
         _labelBuilder = labelBuilder,
         _lowerValue = lowerValue,
@@ -152,20 +146,20 @@ class _RenderRangeSlider extends RenderBox {
   static const double _labelFontSize = 10.0;
 
   double _currentDragValue = 0.0;
-  HorizontalDragGestureRecognizer _drag;
+  late HorizontalDragGestureRecognizer _drag;
 
-  double _minDragValue;
-  double _maxDragValue;
+  late double _minDragValue;
+  late double _maxDragValue;
 
   _ActiveThumb _activeThumb = _ActiveThumb.none;
 
-  Rect _trackRect;
-  Rect _thumbLowerRect;
-  Rect _thumbUpperRect;
+  late Rect _trackRect;
+  late Rect _thumbLowerRect;
+  late Rect _thumbUpperRect;
 
-  RangeSliderCallback _onChanged;
+  RangeSliderCallback? _onChanged;
 
-  set onChanged(RangeSliderCallback value) {
+  set onChanged(RangeSliderCallback? value) {
     if (_onChanged == value) {
       return;
     }
@@ -173,33 +167,31 @@ class _RenderRangeSlider extends RenderBox {
     markNeedsPaint();
   }
 
-  double _lowerValue;
+  double? _lowerValue;
 
   set lowerValue(double value) {
-    assert(value != null);
-    final _value = value.unlerp(_min, _max);
+    final _value = value.unlerp(_min!, _max!);
     assert(_value >= 0.0 && _value <= 1.0);
-    final newValue = _value.discretize(_divisions);
+    final newValue = _value.discretize(_divisions!);
     if (_lowerValue == newValue) {
       return;
     }
     _lowerValue = newValue;
   }
 
-  double _upperValue;
+  double? _upperValue;
 
   set upperValue(double value) {
-    assert(value != null);
-    final _value = value.unlerp(_min, _max);
+    final _value = value.unlerp(_min!, _max!);
     assert(_value >= 0.0 && _value <= 1.0);
-    final newValue = _value.discretize(_divisions);
+    final newValue = _value.discretize(_divisions!);
     if (_upperValue == newValue) {
       return;
     }
     _upperValue = newValue;
   }
 
-  int _divisions;
+  int? _divisions;
 
   set divisions(int value) {
     if (_divisions == value) {
@@ -209,7 +201,7 @@ class _RenderRangeSlider extends RenderBox {
     markNeedsPaint();
   }
 
-  LabelBuilder _labelBuilder;
+  LabelBuilder? _labelBuilder;
 
   set labelBuilder(LabelBuilder value) {
     if (_labelBuilder == value) {
@@ -219,7 +211,7 @@ class _RenderRangeSlider extends RenderBox {
     markNeedsPaint();
   }
 
-  double _min;
+  double? _min;
 
   set min(double value) {
     if (_min == value) {
@@ -229,7 +221,7 @@ class _RenderRangeSlider extends RenderBox {
     markNeedsPaint();
   }
 
-  double _max;
+  double? _max;
 
   set max(double value) {
     if (_max == value) {
@@ -244,7 +236,7 @@ class _RenderRangeSlider extends RenderBox {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final valueDelta = details.primaryDelta / _trackRect.width;
+    final valueDelta = details.primaryDelta! / _trackRect.width;
     _currentDragValue += valueDelta;
     _onRangeChanged(_currentDragValue.clamp(_minDragValue, _maxDragValue));
   }
@@ -255,7 +247,7 @@ class _RenderRangeSlider extends RenderBox {
   }
 
   void _onRangeChanged(double value) {
-    value = value.discretize(_divisions);
+    value = value.discretize(_divisions!);
 
     if (_activeThumb == _ActiveThumb.lowerThumb) {
       _lowerValue = value;
@@ -263,7 +255,7 @@ class _RenderRangeSlider extends RenderBox {
       _upperValue = value;
     }
 
-    _onChanged?.call(_lowerValue.lerp(_min, _max), _upperValue.lerp(_min, _max));
+    _onChanged?.call(_lowerValue!.lerp(_min!, _max!), _upperValue!.lerp(_min!, _max!));
 
     markNeedsPaint();
   }
@@ -276,10 +268,10 @@ class _RenderRangeSlider extends RenderBox {
     if (_thumbLowerRect.contains(position)) {
       _activeThumb = _ActiveThumb.lowerThumb;
       _minDragValue = 0.0;
-      _maxDragValue = (_upperValue - _thumbRadius * 2.0 / _trackRect.width).discretize(_divisions);
+      _maxDragValue = (_upperValue! - _thumbRadius * 2.0 / _trackRect.width).discretize(_divisions!);
     } else if (_thumbUpperRect.contains(position)) {
       _activeThumb = _ActiveThumb.upperThumb;
-      _minDragValue = (_lowerValue + _thumbRadius * 2.0 / _trackRect.width).discretize(_divisions);
+      _minDragValue = (_lowerValue! + _thumbRadius * 2.0 / _trackRect.width).discretize(_divisions!);
       _maxDragValue = 1.0;
     } else {
       _activeThumb = _ActiveThumb.none;
@@ -336,12 +328,12 @@ class _RenderRangeSlider extends RenderBox {
   void paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
 
-    final Size calculatedSize = size - Offset(_thumbRadius * 2, 0);
+    final calculatedSize = size - Offset(_thumbRadius * 2, 0) as Size;
     _trackRect = offset.translate(_thumbRadius, _thumbRadius / 2) & calculatedSize.copyWith(height: _trackRadius * 2);
     final selectedRect = Rect.fromLTRB(
-      _trackRect.left + _lowerValue * _trackRect.width,
+      _trackRect.left + _lowerValue! * _trackRect.width,
       _trackRect.top,
-      _trackRect.right - ((1 - _upperValue) * _trackRect.width),
+      _trackRect.right - ((1 - _upperValue!) * _trackRect.width),
       _trackRect.bottom,
     );
     _paintTrack(canvas, _trackRect, selectedRect);
@@ -358,8 +350,8 @@ class _RenderRangeSlider extends RenderBox {
   }
 
   void _paintTickMarks(Canvas canvas, Rect rect) {
-    final spacing = rect.width / _divisions;
-    for (var i = 0; i <= _divisions; i++) {
+    final spacing = rect.width / _divisions!;
+    for (var i = 0; i <= _divisions!; i++) {
       final _offset = rect.centerLeft + Offset(spacing * i, 0);
       final tick = Offset(0, (i == 0 || i % 5 == 0 || i == _divisions) ? _maxTickLength : _maxTickLength * .65);
       canvas.drawLine(
@@ -384,8 +376,8 @@ class _RenderRangeSlider extends RenderBox {
   }
 
   void _paintLabels(Canvas canvas, Rect rect, double fontSize) {
-    _drawLabel(canvas, _labelBuilder(_min), fontSize, rect.centerLeft);
-    _drawLabel(canvas, _labelBuilder(_max), fontSize, rect.centerRight);
+    _drawLabel(canvas, _labelBuilder!(_min), fontSize, rect.centerLeft);
+    _drawLabel(canvas, _labelBuilder!(_max), fontSize, rect.centerRight);
   }
 
   void _paintTrack(Canvas canvas, Rect rect, Rect selectedRect) {

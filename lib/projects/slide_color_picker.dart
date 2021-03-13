@@ -34,10 +34,10 @@ class _SlideColorPickerState extends State<SlideColorPicker> with TickerProvider
 }
 
 class ColorPicker extends LeafRenderObjectWidget {
-  const ColorPicker({Key key, @required this.vsync, this.onChanged}) : super(key: key);
+  const ColorPicker({Key? key, required this.vsync, this.onChanged}) : super(key: key);
 
   final TickerProvider vsync;
-  final ValueChanged<Color> onChanged;
+  final ValueChanged<Color>? onChanged;
 
   @override
   RenderColorPicker createRenderObject(BuildContext context) {
@@ -54,8 +54,8 @@ class ColorPicker extends LeafRenderObjectWidget {
 
 class RenderColorPicker extends RenderBox {
   RenderColorPicker({
-    @required TickerProvider vsync,
-    ValueChanged<Color> onChanged,
+    required TickerProvider vsync,
+    ValueChanged<Color>? onChanged,
   })  : _vsync = vsync,
         _onChanged = onChanged {
     colorsSpectrum = [
@@ -69,17 +69,16 @@ class RenderColorPicker extends RenderBox {
     tap = TapGestureRecognizer()..onTapDown = _onTapDown;
   }
 
-  HorizontalDragGestureRecognizer drag;
-  TapGestureRecognizer tap;
-  List<Color> colorsSpectrum;
-  RRect trackHandleBounds;
-  RRect controlHandleBounds;
-  AnimationController slideController;
+  late HorizontalDragGestureRecognizer drag;
+  late TapGestureRecognizer tap;
+  late List<Color> colorsSpectrum;
+  late RRect trackHandleBounds;
+  late RRect controlHandleBounds;
+  late AnimationController slideController;
 
   TickerProvider _vsync;
 
   set vsync(TickerProvider vsync) {
-    assert(vsync != null);
     if (vsync == _vsync) {
       return;
     }
@@ -87,9 +86,9 @@ class RenderColorPicker extends RenderBox {
     slideController.resync(_vsync);
   }
 
-  ValueChanged<Color> _onChanged;
+  ValueChanged<Color>? _onChanged;
 
-  set onChanged(ValueChanged<Color> onChanged) {
+  set onChanged(ValueChanged<Color>? onChanged) {
     _onChanged = onChanged;
   }
 
@@ -103,7 +102,7 @@ class RenderColorPicker extends RenderBox {
   }
 
   void _onUpdateDrag(DragUpdateDetails details) {
-    slideController.value += details.primaryDelta;
+    slideController.value += details.primaryDelta!;
     markNeedsPaint();
   }
 
@@ -221,18 +220,17 @@ class RenderColorPicker extends RenderBox {
     final iconSize = trackHeight / 2.25;
     final iconSpacing = iconSize / 2.5;
     const iconWidthFactor = 1.75;
-    previewPath
-      ..addPath(
-        Path()
-          ..moveTo(handleBounds.center.dx - iconSpacing, handleBounds.center.dy - iconSize)
-          ..relativeLineTo(-iconSize * iconWidthFactor, iconSize)
-          ..relativeLineTo(iconSize * iconWidthFactor, iconSize)
-          ..relativeMoveTo(iconSpacing * 2.0, 0)
-          ..relativeLineTo(iconSize * iconWidthFactor, -iconSize)
-          ..relativeLineTo(-iconSize * iconWidthFactor, -iconSize)
-          ..close(),
-        offset,
-      );
+    previewPath.addPath(
+      Path()
+        ..moveTo(handleBounds.center.dx - iconSpacing, handleBounds.center.dy - iconSize)
+        ..relativeLineTo(-iconSize * iconWidthFactor, iconSize)
+        ..relativeLineTo(iconSize * iconWidthFactor, iconSize)
+        ..relativeMoveTo(iconSpacing * 2.0, 0)
+        ..relativeLineTo(iconSize * iconWidthFactor, -iconSize)
+        ..relativeLineTo(-iconSize * iconWidthFactor, -iconSize)
+        ..close(),
+      offset,
+    );
 
     // Draw control handle shadow
     canvas.drawPath(

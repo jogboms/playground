@@ -8,7 +8,7 @@ import 'package:flutter/scheduler.dart';
 import '../extensions.dart';
 
 class EdgeDetection extends StatefulWidget {
-  const EdgeDetection({Key key}) : super(key: key);
+  const EdgeDetection({Key? key}) : super(key: key);
 
   @override
   _EdgeDetectionState createState() => _EdgeDetectionState();
@@ -25,8 +25,8 @@ class _EdgeDetectionState extends State<EdgeDetection> with SingleTickerProvider
 
 class BallsWidget extends LeafRenderObjectWidget {
   const BallsWidget({
-    Key key,
-    @required this.vsync,
+    Key? key,
+    required this.vsync,
   }) : super(key: key);
 
   final TickerProvider vsync;
@@ -39,14 +39,14 @@ class BallsWidget extends LeafRenderObjectWidget {
 
 class RenderBalls extends RenderProxyBox {
   RenderBalls({
-    @required this.vsync,
+    required this.vsync,
   });
 
   final TickerProvider vsync;
 
   int _elapsedTimeInMicroSeconds = 0;
 
-  Ticker _ticker;
+  late Ticker _ticker;
 
   @override
   void attach(PipelineOwner owner) {
@@ -72,7 +72,7 @@ class RenderBalls extends RenderProxyBox {
     _ticker.start();
   }
 
-  List<Ball> balls;
+  late List<Ball> balls;
 
   @override
   void performLayout() {
@@ -86,8 +86,8 @@ class RenderBalls extends RenderProxyBox {
     const minRadius = 15.0;
     const maxRadius = 25.0;
 
-    for (int i = 0; i < 100; i++) {
-      var radius = random(minRadius, maxRadius);
+    for (var i = 0; i < 100; i++) {
+      final radius = random(minRadius, maxRadius);
       balls.add(Ball(
         bounds: Offset.zero & size,
         radius: radius,
@@ -100,7 +100,7 @@ class RenderBalls extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, ui.Offset offset) {
-    for (int i = 0; i < balls.length; i++) {
+    for (var i = 0; i < balls.length; i++) {
       final ball = balls[i]..tick(_elapsedTimeInMicroSeconds);
       drawBall(context.canvas, ball, offset);
     }
@@ -113,13 +113,13 @@ class RenderBalls extends RenderProxyBox {
 
 class Ball {
   Ball({
-    @required this.origin,
-    @required Rect bounds,
-    @required this.velocity,
-    @required this.radius,
-    @required this.color,
-  })  : position = origin,
-        this.bounds = bounds.deflate(radius),
+    required this.origin,
+    required Rect bounds,
+    required this.velocity,
+    required this.radius,
+    required this.color,
+  })   : position = origin,
+        bounds = bounds.deflate(radius),
         dy = velocity,
         friction = .98,
         gravity = Offset(0, .1);

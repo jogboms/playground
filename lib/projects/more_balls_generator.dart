@@ -15,7 +15,7 @@ class HeartOfMaths extends StatefulWidget {
 
 class _HeartOfMathsState extends State<HeartOfMaths> with SingleTickerProviderStateMixin {
   ValueNotifier<double> animation = ValueNotifier(0.0);
-  Ticker ticker;
+  late Ticker ticker;
 
   @override
   void initState() {
@@ -48,7 +48,7 @@ class _HeartOfMathsState extends State<HeartOfMaths> with SingleTickerProviderSt
 }
 
 class TimesTablePainter extends CustomPainter {
-  TimesTablePainter({@required ValueListenable<double> animation}) : super(repaint: animation);
+  TimesTablePainter({required ValueListenable<double> animation}) : super(repaint: animation);
 
   double multiplier = 0.0;
   double count = 0.0;
@@ -62,7 +62,7 @@ class TimesTablePainter extends CustomPainter {
     final bounds = Offset.zero & size;
     final radius = bounds.width / 2;
     final center = bounds.center;
-    final strokeWidth = 2.0;
+    const strokeWidth = 2.0;
 
     canvas.drawCircle(
       center,
@@ -74,7 +74,7 @@ class TimesTablePainter extends CustomPainter {
     );
 
     final angleMapper = interpolate(inputMax: count, outputMax: 360);
-    for (double i = 0.0; i < count; i++) {
+    for (var i = 0.0; i < count; i++) {
       final position = _polarOffset(angleMapper(i), center, radius);
       canvas.drawCircle(position, strokeWidth, Paint()..color = Color.alphaBlend(color, Colors.grey));
 
