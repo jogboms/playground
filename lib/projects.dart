@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'projects/activity_rings.dart';
 import 'projects/balls_generator.dart';
 import 'projects/bed_time.dart';
 import 'projects/edge_detection.dart';
@@ -23,6 +24,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Measure Slider', (_) => MeasureSlider()),
     MapEntry<String, WidgetBuilder>('Progress Dial', (_) => ProgressDial()),
     MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => GaugeMeter()),
+    MapEntry<String, WidgetBuilder>('Activity Rings', (_) => ActivityRings()),
     MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
     MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => SlideColorPicker()),
     MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),

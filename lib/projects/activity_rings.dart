@@ -5,23 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import 'extensions.dart';
-import 'interpolate.dart';
+import '../extensions.dart';
+import '../interpolate.dart';
 
-void main() => runApp(
-      MaterialApp(
-        theme: ThemeData.dark(),
-        debugShowCheckedModeBanner: false,
-        home: Playground(),
-      ),
-    );
-
-class Playground extends StatefulWidget {
+class ActivityRings extends StatefulWidget {
   @override
-  _PlaygroundState createState() => _PlaygroundState();
+  _ActivityRingsState createState() => _ActivityRingsState();
 }
 
-class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
+class _ActivityRingsState extends State<ActivityRings> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final items = [
