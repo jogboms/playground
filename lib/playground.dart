@@ -1,7 +1,9 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'extensions.dart';
 import 'interpolate.dart';
@@ -90,6 +92,7 @@ class B extends RenderBox with RenderBoxDebugBounds {
 
   static final startAngle = -90.radians;
   static final angleBuilder = interpolate(inputMax: 100.0, outputMax: 359.0);
+  static const trackColor = Color(0xFF2D2D2D);
 
   List<U> _values;
 
@@ -101,6 +104,15 @@ class B extends RenderBox with RenderBoxDebugBounds {
     markNeedsPaint();
   }
 
+  int _selectedHitTestIndex;
+  int selectedIndex;
+
+  void _onTapDown() {
+    selectedIndex = _selectedHitTestIndex == selectedIndex ? null : _selectedHitTestIndex;
+    HapticFeedback.selectionClick();
+    markNeedsPaint();
+  }
+
   @override
   bool get sizedByParent => true;
 
@@ -108,6 +120,27 @@ class B extends RenderBox with RenderBoxDebugBounds {
   ui.Size computeDryLayout(BoxConstraints constraints) {
     return constraints.biggest;
   }
+
+  @override
+  bool hitTestSelf(ui.Offset position) {
+    for (final entry in ringPaths.entries) {
+      if (entry.value.contains(localToGlobal(position))) {
+        _selectedHitTestIndex = entry.key;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void handleEvent(PointerEvent event, covariant BoxHitTestEntry entry) {
+    assert(debugHandleEvent(event, entry));
+    if (event is PointerDownEvent) {
+      _onTapDown();
+    }
+  }
+
+  final Map<int, Path> ringPaths = {};
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -135,23 +168,60 @@ class B extends RenderBox with RenderBoxDebugBounds {
         icon: item.icon,
         iconColor: item.iconColor,
       );
+
+      ringPaths[i] = paths.b;
     }
 
-    const textColor = Color(0xFFFFFFFF);
-    final titleTextBounds = canvas.drawText(
-      '57%',
-      center: bounds.center,
-      style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: baseRadius * .45),
-    );
-    debugBounds.add(titleTextBounds);
+    if (selectedIndex != null) {
+      final selectedValue = _values[selectedIndex];
 
-    final captionFontSize = baseRadius * .175;
-    final captionTextBounds = canvas.drawText(
-      'Done',
-      center: titleTextBounds.bottomCenter.translate(0, captionFontSize * .75),
-      style: TextStyle(color: textColor, fontWeight: FontWeight.w300, fontSize: captionFontSize),
-    );
-    debugBounds.add(captionTextBounds);
+      canvas.drawPath(
+        ringPaths[selectedIndex],
+        Paint()
+          ..color = Color.lerp(selectedValue.color, trackColor, .15)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = ringSpacing / 2,
+      );
+
+      const textColor = Color(0xFFFFFFFF);
+      final titleTextBounds = canvas.drawText(
+        '${selectedValue.progress.toInt()}%',
+        center: bounds.center,
+        style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: baseRadius * .45),
+      );
+      debugBounds.add(titleTextBounds);
+
+      final captionFontSize = baseRadius * .175;
+      final captionTextBounds = canvas.drawText(
+        'Done',
+        center: titleTextBounds.bottomCenter.translate(0, captionFontSize * .75),
+        style: TextStyle(color: textColor, fontWeight: FontWeight.w300, fontSize: captionFontSize),
+      );
+      debugBounds.add(captionTextBounds);
+
+      final iconFontSize = baseRadius * .275;
+      final iconTextBounds = canvas.drawText(
+        String.fromCharCode(selectedValue.icon.codePoint),
+        center: titleTextBounds.topCenter.translate(0, -iconFontSize * .75),
+        style: TextStyle(color: trackColor, fontFamily: selectedValue.icon.fontFamily, fontSize: iconFontSize),
+      );
+      debugBounds.add(iconTextBounds);
+    }
+
+    if (selectedIndex == null) {
+      final iconData = Icons.track_changes;
+      final titleTextBounds = canvas.drawText(
+        String.fromCharCode(iconData.codePoint),
+        center: bounds.center,
+        style: TextStyle(
+          color: trackColor,
+          fontFamily: iconData.fontFamily,
+          fontWeight: FontWeight.bold,
+          fontSize: baseRadius * .75,
+        ),
+      );
+      debugBounds.add(titleTextBounds);
+    }
   }
 
   void _drawRing(
@@ -163,7 +233,7 @@ class B extends RenderBox with RenderBoxDebugBounds {
     @required IconData icon,
     @required Color iconColor,
   }) {
-    canvas.drawPath(trackPath, Paint()..color = Color(0xFF2D2D2D));
+    canvas.drawPath(trackPath, Paint()..color = trackColor);
     debugPaths.add(trackPath);
 
     canvas.drawPath(progressPath, Paint()..color = color);
@@ -174,7 +244,11 @@ class B extends RenderBox with RenderBoxDebugBounds {
     final iconBounds = canvas.drawText(
       String.fromCharCode(icon.codePoint),
       center: iconOffset,
-      style: TextStyle(fontFamily: icon.fontFamily, fontSize: strokeWidth * .5, color: iconColor),
+      style: TextStyle(
+        fontFamily: icon.fontFamily,
+        fontSize: strokeWidth * .5,
+        color: Color.lerp(iconColor, color, .2),
+      ),
     );
     debugBounds.add(iconBounds);
   }
