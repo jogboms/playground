@@ -38,8 +38,8 @@ extension NumX<T extends num> on T {
 
   double shiftAngle(T shift) => toDouble() + ((-this - shift) / twoPi).ceil() * twoPi;
 
-  double between(double min, double max) {
-    return math.max(math.min(max, toDouble()), min);
+  bool between(double min, double max) {
+    return this <= max && this >= min;
   }
 }
 
@@ -59,13 +59,19 @@ extension RectX on ui.Rect {
   }
 }
 
+extension OffsetX on ui.Offset {
+  ui.Offset shift(double delta) {
+    return translate(delta, delta);
+  }
+}
+
 extension CanvasX on Canvas {
   Rect drawText(
     String text, {
     required Offset center,
     TextStyle style = const TextStyle(fontSize: 14.0, color: Color(0xFF333333), fontWeight: FontWeight.normal),
   }) {
-    final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.rtl)
+    final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.ltr)
       ..text = TextSpan(text: text, style: style)
       ..layout();
     final bounds = (center & textPainter.size).translate(-textPainter.width / 2, -textPainter.height / 2);
@@ -79,7 +85,7 @@ double toAngle(ui.Offset position, ui.Offset center) {
 }
 
 ui.Offset toPolar(ui.Offset center, double radians, double radius) {
-  return center + ui.Offset(radius * math.cos(radians), radius * math.sin(radians));
+  return center + ui.Offset.fromDirection(radians, radius);
 }
 
 double normalizeAngle(double angle) {
@@ -88,7 +94,7 @@ double normalizeAngle(double angle) {
 }
 
 double random(double min, double max) {
-  return (math.Random().nextDouble() * max).between(min, max);
+  return math.max(math.min(max, math.Random().nextDouble() * max), min);
 }
 
 class Pair<A, B> {
