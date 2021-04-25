@@ -283,15 +283,15 @@ class RenderGaugeMeter extends RenderBox {
     );
   }
 
-  static double _valueToPercentage(double value, {double? min, double? max}) {
+  static double _valueToPercentage(double value, {required double min, required double max}) {
     return interpolate(inputMin: min, inputMax: max)(value);
   }
 
-  static double _valueToAngle(double value, {double? min, double? max}) {
+  static double _valueToAngle(double value, {required double min, required double max}) {
     return _valueToPercentage(value, min: min, max: max) * maxSweepAngle;
   }
 
-  static double _percentageToValue(double value, {double? min, double? max}) {
+  static double _percentageToValue(double value, {required double min, required double max}) {
     return interpolate(outputMin: min, outputMax: max)(value);
   }
 
