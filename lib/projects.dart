@@ -14,6 +14,7 @@ import 'projects/more_balls_generator.dart';
 import 'projects/progress_dial.dart';
 import 'projects/slide_color_picker.dart';
 import 'projects/slide_to_action.dart';
+import 'projects/studio_pro.dart';
 
 class Projects extends StatelessWidget {
   static MaterialPageRoute<void> get route => MaterialPageRoute(builder: (_) => Projects());
@@ -24,6 +25,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Measure Slider', (_) => MeasureSlider()),
     MapEntry<String, WidgetBuilder>('Progress Dial', (_) => ProgressDial()),
     MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => GaugeMeter()),
+    MapEntry<String, WidgetBuilder>('Studio Pro', (_) => StudioPro()),
     MapEntry<String, WidgetBuilder>('Activity Rings', (_) => ActivityRings()),
     MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
     MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => SlideColorPicker()),
