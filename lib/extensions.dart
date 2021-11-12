@@ -21,26 +21,24 @@ extension DoubleX on double {
   }
 }
 
-extension NumX<T extends num> on T {
-  static double twoPi = math.pi * 2.0;
+const fullAngle = math.pi * 2.0;
 
+extension NumX<T extends num> on T {
   double get degrees => (this * 180.0) / math.pi;
 
   double get radians => (this * math.pi) / 180.0;
 
   T normalize(T max) => (this % max + max) % max as T;
 
-  double get normalizeAngle => normalize(twoPi as T).toDouble();
+  double get normalizeAngle => normalize(fullAngle as T).toDouble();
 
   double subtractAngle(T diff) => (this - diff).normalizeAngle;
 
   double addAngle(T diff) => (this + diff).normalizeAngle;
 
-  double shiftAngle(T shift) => toDouble() + ((-this - shift) / twoPi).ceil() * twoPi;
+  double shiftAngle(T shift) => toDouble() + ((-this - shift) / fullAngle).ceil() * fullAngle;
 
-  bool between(double min, double max) {
-    return this <= max && this >= min;
-  }
+  bool between(double min, double max) => this <= max && this >= min;
 }
 
 extension SizeX on ui.Size {
@@ -80,13 +78,9 @@ extension CanvasX on Canvas {
   }
 }
 
-double toAngle(ui.Offset position, ui.Offset center) {
-  return (position - center).direction;
-}
+double toAngle(ui.Offset position, ui.Offset center) => (position - center).direction;
 
-ui.Offset toPolar(ui.Offset center, double radians, double radius) {
-  return center + ui.Offset.fromDirection(radians, radius);
-}
+ui.Offset toPolar(ui.Offset center, double radians, double radius) => center + ui.Offset.fromDirection(radians, radius);
 
 double normalizeAngle(double angle) {
   final totalAngle = 360.radians;
