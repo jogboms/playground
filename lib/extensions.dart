@@ -41,6 +41,11 @@ extension NumX<T extends num> on T {
   bool between(double min, double max) {
     return this <= max && this >= min;
   }
+
+  num roundToDecimal(int fractionDigits) {
+    var n = math.pow(10, fractionDigits);
+    return (this * n).round() / n;
+  }
 }
 
 extension SizeX on ui.Size {
