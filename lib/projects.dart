@@ -10,6 +10,7 @@ import 'projects/gradient_range_selector.dart';
 import 'projects/graph_with_selector.dart';
 import 'projects/graph_with_selector_2.dart';
 import 'projects/hour_minute_dial.dart';
+import 'projects/light_gradient_selector.dart';
 import 'projects/measure_slider.dart';
 import 'projects/more_balls_generator.dart';
 import 'projects/progress_dial.dart';
@@ -31,6 +32,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Activity Rings', (_) => ActivityRings()),
     MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
     MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => SlideColorPicker()),
+    MapEntry<String, WidgetBuilder>('Light Gradient Selector', (_) => const LightGradientSelector()),
     MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),
     MapEntry<String, WidgetBuilder>('Graph With Selector', (_) => GraphWithSelector()),
     MapEntry<String, WidgetBuilder>('Graph With Selector II', (_) => GraphWithSelectorII()),
