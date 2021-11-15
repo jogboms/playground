@@ -18,7 +18,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mfsao: ^0.2.0
+  flutter_lints:
 
 flutter:
   uses-material-design: true
