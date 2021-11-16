@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 
@@ -41,24 +41,24 @@ extension NumX<T extends num> on T {
   bool between(double min, double max) => this <= max && this >= min;
 }
 
-extension SizeX on ui.Size {
+extension SizeX on Size {
   double get radius => shortestSide / 2;
 
-  ui.Size copyWith({double? width, double? height}) {
-    return ui.Size(width ?? this.width, height ?? this.height);
+  Size copyWith({double? width, double? height}) {
+    return Size(width ?? this.width, height ?? this.height);
   }
 }
 
-extension RectX on ui.Rect {
+extension RectX on Rect {
   double get radius => shortestSide / 2;
 
-  ui.Rect shrink({double top = 0.0, double left = 0.0, double right = 0.0, double bottom = 0.0}) {
-    return ui.Rect.fromLTRB(this.left + left, this.top + top, this.right - right, this.bottom - bottom);
+  Rect shrink({double top = 0.0, double left = 0.0, double right = 0.0, double bottom = 0.0}) {
+    return Rect.fromLTRB(this.left + left, this.top + top, this.right - right, this.bottom - bottom);
   }
 }
 
-extension OffsetX on ui.Offset {
-  ui.Offset shift(double delta) {
+extension OffsetX on Offset {
+  Offset shift(double delta) {
     return translate(delta, delta);
   }
 }
@@ -78,9 +78,9 @@ extension CanvasX on Canvas {
   }
 }
 
-double toAngle(ui.Offset position, ui.Offset center) => (position - center).direction;
+double toAngle(Offset position, Offset center) => (position - center).direction;
 
-ui.Offset toPolar(ui.Offset center, double radians, double radius) => center + ui.Offset.fromDirection(radians, radius);
+Offset toPolar(Offset center, double radians, double radius) => center + Offset.fromDirection(radians, radius);
 
 double normalizeAngle(double angle) {
   final totalAngle = 360.radians;
@@ -106,30 +106,37 @@ class Pair2<A, B, C> {
   final C c;
 }
 
+class Range<T> {
+  const Range(this.start, this.end);
+
+  final T start;
+  final T end;
+}
+
 mixin RenderBoxDebugBounds on RenderBox {
   Set<Rect> debugBounds = {};
   Set<Path> debugPaths = {};
 
   @override
-  void debugPaint(PaintingContext context, ui.Offset offset) {
+  void debugPaint(PaintingContext context, Offset offset) {
     assert(() {
       super.debugPaint(context, offset);
 
       if (debugPaintSizeEnabled) {
-        debugBounds.forEach((bounds) {
+        for (var bounds in debugBounds) {
           context.canvas.drawRect(
               bounds,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));
-        });
-        debugPaths.forEach((path) {
+        }
+        for (var path in debugPaths) {
           context.canvas.drawPath(
               path,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));
-        });
+        }
       }
 
       return true;

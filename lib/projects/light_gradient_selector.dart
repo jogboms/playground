@@ -5,26 +5,17 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:playground/extensions.dart';
+import 'package:playground/interpolate.dart';
 
-import 'extensions.dart';
-import 'interpolate.dart';
-
-void main() => runApp(
-      MaterialApp(
-        theme: ThemeData.dark(),
-        debugShowCheckedModeBanner: false,
-        home: const Playground(),
-      ),
-    );
-
-class Playground extends StatefulWidget {
-  const Playground({Key? key}) : super(key: key);
+class LightGradientSelector extends StatefulWidget {
+  const LightGradientSelector({Key? key}) : super(key: key);
 
   @override
-  _PlaygroundState createState() => _PlaygroundState();
+  _LightGradientSelectorState createState() => _LightGradientSelectorState();
 }
 
-class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
+class _LightGradientSelectorState extends State<LightGradientSelector> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final width = math.min(MediaQuery.of(context).size.width, 600.0);
