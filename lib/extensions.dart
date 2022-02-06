@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 
@@ -123,14 +122,14 @@ mixin RenderBoxDebugBounds on RenderBox {
       super.debugPaint(context, offset);
 
       if (debugPaintSizeEnabled) {
-        for (var bounds in debugBounds) {
+        for (final bounds in debugBounds) {
           context.canvas.drawRect(
               bounds,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));
         }
-        for (var path in debugPaths) {
+        for (final path in debugPaths) {
           context.canvas.drawPath(
               path,
               Paint()

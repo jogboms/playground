@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:playground/extensions.dart';
 
 class MeasureSlider extends StatefulWidget {
+  const MeasureSlider({Key? key}) : super(key: key);
+
   @override
   _MeasureSliderState createState() => _MeasureSliderState();
 }
@@ -24,7 +26,7 @@ class _MeasureSliderState extends State<MeasureSlider> with TickerProviderStateM
             unit: 'cm',
             labelBuilder: (value) => '${value.toInt()}',
             onChanged: (value) {
-              print(value);
+              // print(value);
             },
           ),
         ),
@@ -36,7 +38,7 @@ class _MeasureSliderState extends State<MeasureSlider> with TickerProviderStateM
 typedef LabelBuilder = String Function(double value);
 
 class MeasureView extends ScrollView {
-  MeasureView({
+  const MeasureView({
     Key? key,
     this.unit = '',
     this.value,
@@ -45,7 +47,7 @@ class MeasureView extends ScrollView {
     this.itemTickStep,
     this.onChanged,
     this.labelBuilder,
-  }) : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
+  }) : super(key: key, scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics());
 
   final double? value;
   final String unit;
@@ -228,7 +230,7 @@ class RenderMeasureViewWidget extends RenderSliver {
   }
 
   void _animateTo(double horizontalOffset) {
-    controller.animateTo(horizontalOffset, duration: Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
+    controller.animateTo(horizontalOffset, duration: const Duration(milliseconds: 500), curve: Curves.linearToEaseOut);
   }
 
   static const itemMinHeight = 50.0;
@@ -345,7 +347,7 @@ class RenderMeasureViewWidget extends RenderSliver {
       cursorTopOffset,
       cursorBottomOffset,
       Paint()
-        ..color = Color(0xFF9465E4)
+        ..color = const Color(0xFF9465E4)
         ..strokeWidth = tickWidth * 1.5
         ..strokeCap = StrokeCap.round,
     );
@@ -354,7 +356,7 @@ class RenderMeasureViewWidget extends RenderSliver {
       _unit,
       standardFontSize,
       cursorTopOffset.translate(0, -standardFontSize * 2.5),
-      Color(0xFFC366D5),
+      const Color(0xFFC366D5),
     );
 
     _onSelectValue((normalizedHorizontalOffset / _itemExtent).clamp(0.0, _itemCount.toDouble()).toDouble());
@@ -384,7 +386,7 @@ class RenderMeasureViewWidget extends RenderSliver {
           fontWeight: FontWeight.w600,
           fontSize: fontSize,
           shadows: [
-            if (shadow) ui.Shadow(color: Colors.white38, offset: Offset(0, 1), blurRadius: 4),
+            if (shadow) const ui.Shadow(color: Colors.white38, offset: Offset(0, 1), blurRadius: 4),
           ],
         ),
       )
@@ -400,13 +402,13 @@ class RenderMeasureViewWidget extends RenderSliver {
       super.debugPaint(context, offset);
 
       if (debugPaintSizeEnabled) {
-        debugLabelBounds.forEach((bounds) {
+        for (final bounds in debugLabelBounds) {
           context.canvas.drawRect(
               bounds,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));
-        });
+        }
       }
 
       return true;

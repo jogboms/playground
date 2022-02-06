@@ -118,11 +118,11 @@ class Ball {
     required this.velocity,
     required this.radius,
     required this.color,
-  })   : position = origin,
+  })  : position = origin,
         bounds = bounds.deflate(radius),
         dy = velocity,
         friction = .98,
-        gravity = Offset(0, .1);
+        gravity = const Offset(0, .1);
 
   final Offset origin;
   final Rect bounds;

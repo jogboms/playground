@@ -8,6 +8,8 @@ import 'package:playground/extensions.dart';
 import 'package:playground/interpolate.dart';
 
 class StudioPro extends StatefulWidget {
+  const StudioPro({Key? key}) : super(key: key);
+
   @override
   _StudioProState createState() => _StudioProState();
 }
@@ -16,7 +18,7 @@ class _StudioProState extends State<StudioPro> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF1D232F),
+      backgroundColor: const Color(0xFF1D232F),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -24,18 +26,18 @@ class _StudioProState extends State<StudioPro> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox.fromSize(
-                size: Size(75, 450),
-                child: LevelSliderWidget(value: 10, min: -10, max: 25),
+                size: const Size(75, 450),
+                child: const LevelSliderWidget(value: 10, min: -10, max: 25),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               SizedBox.fromSize(
-                size: Size.square(450),
-                child: KnobControlWidget(value: 25, min: 0, max: 70),
+                size: const Size.square(450),
+                child: const KnobControlWidget(value: 25, min: 0, max: 70),
               ),
-              SizedBox(width: 32),
+              const SizedBox(width: 32),
               SizedBox.fromSize(
-                size: Size(75, 450),
-                child: LevelWidget(value: -14, min: -60, max: 0),
+                size: const Size(75, 450),
+                child: const LevelWidget(value: -14, min: -60, max: 0),
               ),
             ],
           ),
@@ -130,11 +132,11 @@ class RenderLevelWidget extends RenderBox with RenderBoxDebugBounds {
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    _timer = async.Timer.periodic(Duration(milliseconds: 1000 ~/ 24), (timer) {
+    _timer = async.Timer.periodic(const Duration(milliseconds: 1000 ~/ 24), (timer) {
       _value = random(0, .25);
       markNeedsPaint();
     });
-    async.Timer(Duration(seconds: 5), _timer.cancel);
+    async.Timer(const Duration(seconds: 5), _timer.cancel);
   }
 
   @override
@@ -144,11 +146,11 @@ class RenderLevelWidget extends RenderBox with RenderBoxDebugBounds {
     super.detach();
   }
 
-  static final selectedColor = Color(0xFFFF6E40);
-  static final thumbColor = Color(0xFF29323F);
-  static final tickColor = Color(0xFF374153);
-  static final labelColor = Color(0xFF69707C);
-  static final backgroundColor = Color(0xFF151C24);
+  static const selectedColor = Color(0xFFFF6E40);
+  static const thumbColor = Color(0xFF29323F);
+  static const tickColor = Color(0xFF374153);
+  static const labelColor = Color(0xFF69707C);
+  static const backgroundColor = Color(0xFF151C24);
 
   static const tickDivisions = 10.0;
 
@@ -337,11 +339,11 @@ class RenderLevelSlider extends RenderBox with RenderBoxDebugBounds {
   late final VerticalDragGestureRecognizer drag;
   late final TapGestureRecognizer tap;
 
-  static final selectedColor = Color(0xFFFF6E40);
-  static final thumbColor = Color(0xFF29323F);
-  static final tickColor = Color(0xFF374153);
-  static final labelColor = Color(0xFF69707C);
-  static final backgroundColor = Color(0xFF151C24);
+  static const selectedColor = Color(0xFFFF6E40);
+  static const thumbColor = Color(0xFF29323F);
+  static const tickColor = Color(0xFF374153);
+  static const labelColor = Color(0xFF69707C);
+  static const backgroundColor = Color(0xFF151C24);
   static final thumbGradient = [tickColor, thumbColor];
 
   static const tickDivisions = 10.0;
@@ -599,10 +601,10 @@ class RenderKnobControl extends RenderBox with RenderBoxDebugBounds {
   static final totalAngle = 360.radians;
   static final startAngle = -90.radians;
 
-  static final selectedColor = Color(0xFFFF6E40);
-  static final tickColor = Color(0xFF374153);
-  static final thumbColor = Color(0xFF29323F);
-  static final backgroundColor = Color(0xFF151C24);
+  static const selectedColor = Color(0xFFFF6E40);
+  static const tickColor = Color(0xFF374153);
+  static const thumbColor = Color(0xFF29323F);
+  static const backgroundColor = Color(0xFF151C24);
   static final thumbGradient = [tickColor, thumbColor];
 
   static const tickDivisions = 4.0;

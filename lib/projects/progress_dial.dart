@@ -10,6 +10,8 @@ import '../extensions.dart';
 import '../interpolate.dart';
 
 class ProgressDial extends StatefulWidget {
+  const ProgressDial({Key? key}) : super(key: key);
+
   @override
   _ProgressDialState createState() => _ProgressDialState();
 }
@@ -18,11 +20,11 @@ class _ProgressDialState extends State<ProgressDial> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2C2F3E),
+      backgroundColor: const Color(0xFF2C2F3E),
       body: Center(
         child: ProgressDialWidget(
           onChanged: (value) {
-            print(value);
+            // print(value);
           },
         ),
       ),
@@ -64,7 +66,7 @@ class RenderProgressDial extends RenderBox {
 
   static final totalAngle = 360.radians;
   static final startAngle = -90.radians;
-  static final shadowColor = Color(0xFF272A39);
+  static const shadowColor = Color(0xFF272A39);
   static final labelColor = Colors.white30;
   static const titleFontRadius = 30.0;
   static const labelFontRadius = titleFontRadius / 4.5;
@@ -138,7 +140,7 @@ class RenderProgressDial extends RenderBox {
   }
 
   Size computeSize(BoxConstraints constraints) {
-    final effectiveConstraints = constraints.enforce(BoxConstraints(
+    final effectiveConstraints = constraints.enforce(const BoxConstraints(
       minHeight: minRadius * 2,
       minWidth: minRadius * 2,
       maxHeight: maxRadius * 2,
@@ -181,7 +183,7 @@ class RenderProgressDial extends RenderBox {
     final midCircleRadius = segment * 5;
     final midRect = Rect.fromCircle(center: center, radius: midCircleRadius);
     _drawShadow(canvas, midRect, shadowColor);
-    canvas.drawCircle(center, midCircleRadius, Paint()..color = Color(0xFF323544));
+    canvas.drawCircle(center, midCircleRadius, Paint()..color = const Color(0xFF323544));
 
     // Progress
     final angle = _currentAngle;
@@ -190,7 +192,7 @@ class RenderProgressDial extends RenderBox {
       endAngle: sweepAngle,
       tileMode: TileMode.mirror,
       transform: GradientRotation(startAngle),
-      colors: [Color(0xFF626BFC), Colors.purpleAccent],
+      colors: const [Color(0xFF626BFC), Colors.purpleAccent],
     ).createShader(midRect);
     final strokeWidth = segment / 3;
     final progressShadowElevation = strokeWidth * .15;
@@ -230,7 +232,7 @@ class RenderProgressDial extends RenderBox {
       useCenter: true,
       elevation: progressIndicatorRadius * 3,
     );
-    canvas.drawCircle(progressIndicatorCenter, progressIndicatorRadius * 2, Paint()..color = Color(0xFF626BFC));
+    canvas.drawCircle(progressIndicatorCenter, progressIndicatorRadius * 2, Paint()..color = const Color(0xFF626BFC));
     canvas.drawCircle(progressIndicatorCenter, progressIndicatorRadius, Paint()..color = Colors.white);
 
     // Knob
@@ -241,7 +243,7 @@ class RenderProgressDial extends RenderBox {
       center,
       knobRadius,
       Paint()
-        ..shader = LinearGradient(
+        ..shader = const LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
           colors: [Color(0xFF4A4C62), Color(0xFF37384B)],
@@ -264,21 +266,21 @@ class RenderProgressDial extends RenderBox {
     final titleRect = _drawParagraph(
       canvas,
       valueBuilder!(angle).round().toString(),
-      offset: center - Offset(0, titleFontRadius),
+      offset: center - const Offset(0, titleFontRadius),
       color: Colors.white,
       fontSize: titleFontRadius * 2,
     );
     _drawParagraph(
       canvas,
       'C',
-      offset: titleRect.topRight + Offset(labelFontRadius * 2, labelFontRadius * 2),
+      offset: titleRect.topRight + const Offset(labelFontRadius * 2, labelFontRadius * 2),
       color: labelColor,
       fontSize: labelFontRadius * 2,
     );
     _drawParagraph(
       canvas,
       'ROOM\nTEMPERATURE',
-      offset: center + Offset(0, 16.0),
+      offset: center + const Offset(0, 16.0),
       color: labelColor,
       fontSize: labelFontRadius * 2,
     );

@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import '../extensions.dart';
 
 class HourMinuteDial extends StatefulWidget {
+  const HourMinuteDial({Key? key}) : super(key: key);
+
   @override
   _HourMinuteDialState createState() => _HourMinuteDialState();
 }
@@ -20,14 +22,14 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
   TimeOfDayType _timeOfDay = TimeOfDayType.am;
 
   final DecorationTween decorationTween = DecorationTween(
-    begin: BoxDecoration(
+    begin: const BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [Colors.orangeAccent, Color(0xFFBF360C)],
       ),
     ),
-    end: BoxDecoration(
+    end: const BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -74,7 +76,7 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
                 valueNotifier.value = time;
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -91,7 +93,7 @@ class _HourMinuteDialState extends State<HourMinuteDial> with TickerProviderStat
                     );
                   },
                 ),
-                SizedBox(width: 24),
+                const SizedBox(width: 24),
                 TimeOfDayWidget(
                   vsync: this,
                   value: _timeOfDay,
@@ -137,7 +139,7 @@ class TimeOfDayRenderBox extends RenderBox {
     required this.vsync,
     required TimeOfDayType value,
     required ValueChanged<TimeOfDayType> onChanged,
-  })   : _value = value,
+  })  : _value = value,
         _onChanged = onChanged {
     gesture = TapGestureRecognizer()..onTapUp = _onTapUp;
     _selectedIndex = value.index;
@@ -276,7 +278,7 @@ class TimeOfDayRenderBox extends RenderBox {
       Rect.fromLTRB(rect.left, rect.top - deltaDy, rect.right, rect.bottom + deltaDy),
       Radius.circular(radius),
     );
-    context.canvas.drawRRect(rrect, Paint()..color = Color(0x2C000000));
+    context.canvas.drawRRect(rrect, Paint()..color = const Color(0x2C000000));
 
     context.canvas.drawCircle(
       _selectedCenter!,
@@ -469,7 +471,7 @@ class DialItemRenderBox extends RenderBox {
     _controller
         .animateWith(
       SpringSimulation(
-        SpringDescription(mass: 30.0, stiffness: 1.0, damping: 1.0),
+        const SpringDescription(mass: 30.0, stiffness: 1.0, damping: 1.0),
         0,
         1,
         -unitsPerSecond.distance,
@@ -625,7 +627,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       debugLabel: 'Hour',
       vsync: vsync,
       padding: 16,
-      color: Color(0x00000000),
+      color: const Color(0x00000000),
       alignment: KnobIndicatorAlignment.top,
       value: time.hour,
       start: 1,
@@ -636,7 +638,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       debugLabel: 'Minute',
       vsync: vsync,
       padding: 24,
-      color: Color(0x1C000000),
+      color: const Color(0x1C000000),
       alignment: KnobIndicatorAlignment.bottom,
       value: time.minute,
       start: 0,
@@ -654,7 +656,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
     _onChanged = value;
   }
 
-  TimeValue _time = TimeValue(0, 0);
+  TimeValue _time = const TimeValue(0, 0);
 
   set time(TimeValue value) {
     if (_time == value) {
@@ -695,7 +697,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       final childSize = Size.fromRadius(childRadius);
       final center = Offset(firstChildRadius, firstRadius ?? childRadius);
 
-      final childParentData = child.parentData as DialParentData;
+      final childParentData = child.parentData! as DialParentData;
       childParentData.offset = Offset(center.dx - childRadius, center.dy - childRadius);
 
       child.layout(BoxConstraints.tight(childSize));
@@ -724,7 +726,7 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
       if (child.hitTest(result, position: position!)) {
         return true;
       }
-      child = (child.parentData as DialParentData).previousSibling;
+      child = (child.parentData! as DialParentData).previousSibling;
     }
     return false;
   }
@@ -737,14 +739,14 @@ class DialRenderBox extends RenderBox with ContainerRenderObjectMixin<DialItemRe
   @override
   void paint(PaintingContext context, Offset offset) {
     context.canvas.drawCircle(
-      firstChild!.center + (firstChild!.parentData as DialParentData).offset,
+      firstChild!.center + (firstChild!.parentData! as DialParentData).offset,
       firstChild!.radius,
       Paint()..color = Colors.black26,
     );
 
     var child = firstChild;
     while (child != null) {
-      final childParentData = child.parentData as DialParentData;
+      final childParentData = child.parentData! as DialParentData;
       final childOffset = childParentData.offset + offset;
       context.paintChild(child, childOffset);
 

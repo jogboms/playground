@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +8,8 @@ import '../extensions.dart';
 import '../interpolate.dart';
 
 class ActivityRings extends StatefulWidget {
+  const ActivityRings({Key? key}) : super(key: key);
+
   @override
   _ActivityRingsState createState() => _ActivityRingsState();
 }
@@ -17,21 +18,21 @@ class _ActivityRingsState extends State<ActivityRings> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final items = [
-      Data(
+      const Data(
         title: 'Activity',
         progress: 56,
         icon: Icons.nightlight_round,
         color: Color(0xFFFF7C31),
         iconColor: Color(0xFFFFFFFF),
       ),
-      Data(
+      const Data(
         title: 'Habits',
         progress: 69,
         icon: Icons.opacity,
         color: Color(0xFF6706FF),
         iconColor: Color(0xFFFFFFFF),
       ),
-      Data(
+      const Data(
         title: 'Rest',
         progress: 30,
         icon: Icons.star,
@@ -41,15 +42,15 @@ class _ActivityRingsState extends State<ActivityRings> with TickerProviderStateM
     ];
 
     return Scaffold(
-      backgroundColor: Color(0xFF161616),
+      backgroundColor: const Color(0xFF161616),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox.fromSize(
-            size: Size.square(540.0),
+            size: const Size.square(540.0),
             child: ActivityRingsWidget(vsync: this, values: items),
           ),
-          SizedBox(height: 64),
+          const SizedBox(height: 64),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -59,13 +60,13 @@ class _ActivityRingsState extends State<ActivityRings> with TickerProviderStateM
                   children: [
                     Container(
                       decoration: BoxDecoration(color: item.color, shape: BoxShape.circle),
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       child: Icon(item.icon, size: 42, color: item.iconColor),
                     ),
-                    SizedBox(height: 18),
+                    const SizedBox(height: 18),
                     Text(
                       item.title,
-                      style: TextStyle(color: Colors.white60, fontWeight: FontWeight.w400, fontSize: 18),
+                      style: const TextStyle(color: Colors.white60, fontWeight: FontWeight.w400, fontSize: 18),
                     ),
                   ],
                 )
@@ -147,7 +148,7 @@ class RenderActivityRings extends RenderBox with RenderBoxDebugBounds {
       ..addListener(markNeedsPaint)
       ..forward();
 
-    progressAnimation = AnimationController.unbounded(vsync: _vsync, duration: Duration(milliseconds: 350))
+    progressAnimation = AnimationController.unbounded(vsync: _vsync, duration: const Duration(milliseconds: 350))
       ..addListener(markNeedsPaint);
   }
 

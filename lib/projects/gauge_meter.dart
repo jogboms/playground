@@ -5,6 +5,8 @@ import '../extensions.dart';
 import '../interpolate.dart';
 
 class GaugeMeter extends StatefulWidget {
+  const GaugeMeter({Key? key}) : super(key: key);
+
   @override
   _GaugeMeterState createState() => _GaugeMeterState();
 }
@@ -20,14 +22,14 @@ class _GaugeMeterState extends State<GaugeMeter> {
             value: 30,
             min: 0,
             max: 100,
-            divisions: [
+            divisions: const [
               Pair2(0.33, 'Bad', Color(0xFFFF524F)),
               Pair2(0.56, 'Average', Color(0xFFFAD64C)),
               Pair2(0.8, 'Good', Color(0xFFB2FF59)),
               Pair2(1.0, 'Excellent', Color(0xFF51AD54)),
             ],
             onChanged: (value) {
-              print(value);
+              // print(value);
             },
           ),
         ),
@@ -38,13 +40,15 @@ class _GaugeMeterState extends State<GaugeMeter> {
 
 class GaugeMeterWidget extends LeafRenderObjectWidget {
   GaugeMeterWidget({
+    Key? key,
     required this.value,
     required this.min,
     required this.max,
     this.divisions = const [],
     this.onChanged,
   })  : assert(value >= min && value <= max),
-        assert(divisions.isNotEmpty);
+        assert(divisions.isNotEmpty),
+        super(key: key);
 
   final double value;
   final double min;

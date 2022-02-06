@@ -4,11 +4,13 @@ void main() => runApp(
       MaterialApp(
         theme: ThemeData.dark(),
         debugShowCheckedModeBanner: false,
-        home: Playground(),
+        home: const Playground(),
       ),
     );
 
 class Playground extends StatefulWidget {
+  const Playground({Key? key}) : super(key: key);
+
   @override
   _PlaygroundState createState() => _PlaygroundState();
 }
@@ -16,11 +18,9 @@ class Playground extends StatefulWidget {
 class _PlaygroundState extends State<Playground> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: Center(
-          child: Text('Shake device to see projects'),
-        ),
+    return const Scaffold(
+      body: Center(
+        child: Text('Shake device to see projects'),
       ),
     );
   }

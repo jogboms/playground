@@ -7,6 +7,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 class SlideColorPicker extends StatefulWidget {
+  const SlideColorPicker({Key? key}) : super(key: key);
+
   @override
   _SlideColorPickerState createState() => _SlideColorPickerState();
 }
@@ -23,7 +25,7 @@ class _SlideColorPickerState extends State<SlideColorPicker> with TickerProvider
             child: ColorPicker(
               vsync: this,
               onChanged: (color) {
-                print(color);
+                // print(color);
               },
             ),
           ),
@@ -135,7 +137,7 @@ class RenderColorPicker extends RenderBox {
     slideController = AnimationController.unbounded(
       value: 0.0,
       vsync: _vsync,
-      duration: Duration(milliseconds: 350),
+      duration: const Duration(milliseconds: 350),
     )..addListener(markNeedsPaint);
   }
 

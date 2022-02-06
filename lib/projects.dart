@@ -19,26 +19,28 @@ import 'projects/slide_to_action.dart';
 import 'projects/studio_pro.dart';
 
 class Projects extends StatelessWidget {
+  Projects({Key? key}) : super(key: key);
+
   static MaterialPageRoute<void> get route => MaterialPageRoute(builder: (_) => Projects());
 
   final items = [
-    MapEntry<String, WidgetBuilder>('Hour/Minute Dial', (_) => HourMinuteDial()),
-    MapEntry<String, WidgetBuilder>('Bed Time', (_) => BedTime()),
-    MapEntry<String, WidgetBuilder>('Measure Slider', (_) => MeasureSlider()),
-    MapEntry<String, WidgetBuilder>('Progress Dial', (_) => ProgressDial()),
-    MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => GaugeMeter()),
+    MapEntry<String, WidgetBuilder>('Hour/Minute Dial', (_) => const HourMinuteDial()),
+    MapEntry<String, WidgetBuilder>('Bed Time', (_) => const BedTime()),
+    MapEntry<String, WidgetBuilder>('Measure Slider', (_) => const MeasureSlider()),
+    MapEntry<String, WidgetBuilder>('Progress Dial', (_) => const ProgressDial()),
+    MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => const GaugeMeter()),
     MapEntry<String, WidgetBuilder>('Circular Color Picker', (_) => const CircularColorPicker()),
-    MapEntry<String, WidgetBuilder>('Studio Pro', (_) => StudioPro()),
-    MapEntry<String, WidgetBuilder>('Activity Rings', (_) => ActivityRings()),
-    MapEntry<String, WidgetBuilder>('Slide To Action', (_) => SlideToAction()),
-    MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => SlideColorPicker()),
+    MapEntry<String, WidgetBuilder>('Studio Pro', (_) => const StudioPro()),
+    MapEntry<String, WidgetBuilder>('Activity Rings', (_) => const ActivityRings()),
+    MapEntry<String, WidgetBuilder>('Slide To Action', (_) => const SlideToAction()),
+    MapEntry<String, WidgetBuilder>('Slide Color Picker', (_) => const SlideColorPicker()),
     MapEntry<String, WidgetBuilder>('Light Gradient Selector', (_) => const LightGradientSelector()),
-    MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => GradientRangeSelector()),
-    MapEntry<String, WidgetBuilder>('Graph With Selector', (_) => GraphWithSelector()),
-    MapEntry<String, WidgetBuilder>('Graph With Selector II', (_) => GraphWithSelectorII()),
-    MapEntry<String, WidgetBuilder>('Heart Of Maths', (_) => HeartOfMaths()),
-    MapEntry<String, WidgetBuilder>('Edge Detection', (_) => EdgeDetection()),
-    MapEntry<String, WidgetBuilder>('Balls Generator', (_) => BallsGenerator()),
+    MapEntry<String, WidgetBuilder>('Gradient Range Selector', (_) => const GradientRangeSelector()),
+    MapEntry<String, WidgetBuilder>('Graph With Selector', (_) => const GraphWithSelector()),
+    MapEntry<String, WidgetBuilder>('Graph With Selector II', (_) => const GraphWithSelectorII()),
+    MapEntry<String, WidgetBuilder>('Heart Of Maths', (_) => const HeartOfMaths()),
+    MapEntry<String, WidgetBuilder>('Edge Detection', (_) => const EdgeDetection()),
+    MapEntry<String, WidgetBuilder>('Balls Generator', (_) => const BallsGenerator()),
   ];
 
   @override
@@ -53,10 +55,10 @@ class Projects extends StatelessWidget {
         itemBuilder: (_, index) {
           final item = items[index];
           return ListTile(
-            leading: Icon(Icons.widgets_outlined, color: Colors.white),
+            leading: const Icon(Icons.widgets_outlined, color: Colors.white),
             minLeadingWidth: 0,
             dense: true,
-            title: Text(item.key, style: TextStyle(color: Colors.white)),
+            title: Text(item.key, style: const TextStyle(color: Colors.white)),
             onTap: () {
               Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: item.value));
             },

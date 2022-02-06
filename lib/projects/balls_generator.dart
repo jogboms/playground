@@ -49,10 +49,10 @@ class RenderBalls extends RenderProxyBox {
   late Ticker _ticker;
 
   final _colors = [
-    Color(0xFFCCCC22),
-    Color(0xFF2266AA),
-    Color(0xFFAAEE11),
-    Color(0xFFCC6666),
+    const Color(0xFFCCCC22),
+    const Color(0xFF2266AA),
+    const Color(0xFFAAEE11),
+    const Color(0xFFCC6666),
   ];
 
   final pumpIntervalInSeconds = 10;
@@ -143,11 +143,11 @@ class Ball {
     required this.radius,
     required this.delay,
     required this.color,
-  })   : position = origin,
-        acceleration = Offset(0, .1),
+  })  : position = origin,
+        acceleration = const Offset(0, .1),
         bounds = bounds.deflate(radius),
         dy = velocity,
-        gravity = Offset(0, 0.001),
+        gravity = const Offset(0, 0.001),
         friction = .98;
 
   final Offset origin;
@@ -182,7 +182,7 @@ class Ball {
 //      position.dy.clamp(bounds.top, bounds.bottom),
 //    );
 
-    print([position, bounds, dy, !bounds.contains(position)]);
+    // print([position, bounds, dy, !bounds.contains(position)]);
   }
 
   double? startTimeInSeconds;

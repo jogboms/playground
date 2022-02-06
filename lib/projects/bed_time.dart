@@ -9,16 +9,18 @@ import 'package:flutter/services.dart';
 import '../extensions.dart';
 
 class BedTime extends StatefulWidget {
+  const BedTime({Key? key}) : super(key: key);
+
   @override
   _BedTimeState createState() => _BedTimeState();
 }
 
 class _BedTimeState extends State<BedTime> {
-  final Color mutedTextColor = Color(0xFF9D9EA2);
+  final Color mutedTextColor = const Color(0xFF9D9EA2);
   final double threshold = 8.0;
 
-  TimeOfDay _bedTime = TimeOfDay(hour: 22, minute: 0);
-  TimeOfDay _wakeTime = TimeOfDay(hour: 6, minute: 0);
+  TimeOfDay _bedTime = const TimeOfDay(hour: 22, minute: 0);
+  TimeOfDay _wakeTime = const TimeOfDay(hour: 6, minute: 0);
 
   TimeOfDay get _sleepTime => _bedTime.subtract(_wakeTime);
 
@@ -36,10 +38,10 @@ class _BedTimeState extends State<BedTime> {
             ),
           ]),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           '${time.hourOfPeriod == 0 ? 12 : _addZeroes(time.hourOfPeriod)}:${_addZeroes(time.minute)} ${time.periodShort.toUpperCase()}',
-          style: TextStyle(fontSize: 28, color: Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 28, color: Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -48,7 +50,7 @@ class _BedTimeState extends State<BedTime> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2C2C2E),
+      backgroundColor: const Color(0xFF2C2C2E),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -58,11 +60,11 @@ class _BedTimeState extends State<BedTime> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildTopTitle('BEDTIME', Icons.king_bed_rounded, _bedTime),
-                SizedBox(width: 32),
+                const SizedBox(width: 32),
                 _buildTopTitle('WAKE UP', Icons.notifications, _wakeTime),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             BedTimeWidget(
               bedTime: _bedTime,
               wakeTime: _wakeTime,
@@ -74,12 +76,12 @@ class _BedTimeState extends State<BedTime> {
                 });
               },
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
               '${_sleepTime.hour} hr' + (_sleepTime.minute > 0 ? ' ${_sleepTime.minute} min' : ''),
-              style: TextStyle(fontSize: 24, color: Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 24, color: Color(0xFFFFFFFF), fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               _sleepTime.hour > threshold
                   ? 'This schedule does not meet your sleep goal.'
@@ -130,7 +132,7 @@ class RenderSlideButton extends RenderBox {
     double? threshold,
     required TimeOfDay bedTime,
     required TimeOfDay wakeTime,
-  })   : _onChange = onChange,
+  })  : _onChange = onChange,
         _threshold = threshold,
         _bedTime = bedTime,
         _wakeTime = wakeTime {
@@ -308,13 +310,13 @@ class RenderSlideButton extends RenderBox {
     final angleOffset = -90.radians;
 
     // Draw background
-    canvas.drawCircle(center, radius, Paint()..color = Color(0xFF000000));
+    canvas.drawCircle(center, radius, Paint()..color = const Color(0xFF000000));
 
     final knobThickness = size.width / 8;
     final knobPadding = knobThickness / 8;
 
     // Draw clock
-    final clockBackgroundColor = Color(0xFF2C2C2E);
+    const clockBackgroundColor = Color(0xFF2C2C2E);
     final clockRadius = radius - (knobPadding * 2) - knobThickness;
     canvas.drawCircle(center, clockRadius, Paint()..color = clockBackgroundColor);
     final tickLength = knobThickness / 40;
@@ -323,7 +325,7 @@ class RenderSlideButton extends RenderBox {
     const tickDivisions = 3.75;
     final tickTextFontSize = tickLength * 10;
     final tickTextPadding = tickPadding * 1.25;
-    final tickColor = Color(0x50FFFFFF);
+    const tickColor = Color(0x50FFFFFF);
 
     // Draw ticks
     for (var i = 0; i < (360 / tickDivisions); i++) {
@@ -359,7 +361,7 @@ class RenderSlideButton extends RenderBox {
         // Draw icons
         if (pair.a == TimeOfDay.hoursPerPeriod) {
           final icon = hour == 0 ? Icons.auto_awesome : Icons.wb_sunny_rounded;
-          final color = hour == 0 ? Color(0xFF00D0CC) : Color(0xFFFED60A);
+          final color = hour == 0 ? const Color(0xFF00D0CC) : const Color(0xFFFED60A);
           _drawParagraph(
             canvas,
             String.fromCharCode(icon.codePoint),
@@ -384,7 +386,7 @@ class RenderSlideButton extends RenderBox {
     final innerStartOffset = toPolar(center, startAngle, innerKnobRadius);
     final endOffset = toPolar(center, endAngle, knobRadius);
     final innerEndOffset = toPolar(center, endAngle, innerKnobRadius);
-    final knobColor = _selectedSleepHours > _threshold! ? clockBackgroundColor : Color(0xFFFF9F0A);
+    final knobColor = _selectedSleepHours > _threshold! ? clockBackgroundColor : const Color(0xFFFF9F0A);
 
     knobPath = Path()
       ..moveTo(startOffset.dx, startOffset.dy)
@@ -407,7 +409,7 @@ class RenderSlideButton extends RenderBox {
         toPolar(center, index.radians, knobRadius - strokeRadius),
         toPolar(center, index.radians, innerKnobRadius + strokeRadius),
         Paint()
-          ..color = Color(0x30000000)
+          ..color = const Color(0x30000000)
           ..strokeCap = StrokeCap.round
           ..strokeWidth = strokeRadius / 6,
       );
@@ -415,8 +417,8 @@ class RenderSlideButton extends RenderBox {
 
     // Draw handles
     final handleSize = Size.square(knobThickness);
-    final selectedHandleStateColor = Color.lerp(knobColor, Color(0xFF000000), .25);
-    final fontColor = _selectedSleepHours > _threshold! ? tickColor : Color(0x99000000);
+    final selectedHandleStateColor = Color.lerp(knobColor, const Color(0xFF000000), .25);
+    final fontColor = _selectedSleepHours > _threshold! ? tickColor : const Color(0x99000000);
     startHandleBounds = Rect.fromCenter(
       center: Offset.lerp(startOffset, innerStartOffset, .5)!,
       width: handleSize.width,

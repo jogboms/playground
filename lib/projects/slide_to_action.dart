@@ -8,6 +8,8 @@ import 'package:flutter/rendering.dart';
 import '../interpolate.dart';
 
 class SlideToAction extends StatefulWidget {
+  const SlideToAction({Key? key}) : super(key: key);
+
   @override
   _SlideToActionState createState() => _SlideToActionState();
 }
@@ -16,16 +18,16 @@ class _SlideToActionState extends State<SlideToAction> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF070813),
+      backgroundColor: const Color(0xFF070813),
       body: Center(
         child: SlideButton(
           vsync: this,
           title: 'SLIDE TO SEND',
           onTap: () {
-            print('onTap');
+            // print('onTap');
           },
           onSlide: () {
-            print('onSlide');
+            // print('onSlide');
           },
         ),
       ),
@@ -66,7 +68,7 @@ class RenderSlideButton extends RenderBox {
         _onTap = onTap,
         _onSlide = onSlide,
         _vsync = vsync {
-    final physics = BouncingScrollPhysics();
+    const physics = BouncingScrollPhysics();
     drag = HorizontalDragGestureRecognizer()
       ..minFlingVelocity = physics.minFlingVelocity
       ..maxFlingVelocity = physics.maxFlingVelocity
@@ -126,12 +128,12 @@ class RenderSlideButton extends RenderBox {
     slideController = AnimationController.unbounded(
       value: 0.0,
       vsync: _vsync!,
-      duration: Duration(milliseconds: 350),
+      duration: const Duration(milliseconds: 350),
     )..addListener(markNeedsPaint);
 
     heartBeatController = AnimationController(
       vsync: _vsync!,
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     )
       ..addListener(markNeedsPaint)
       ..repeat(reverse: true);
@@ -194,7 +196,7 @@ class RenderSlideButton extends RenderBox {
 
   @override
   void performLayout() {
-    final effectiveConstraints = constraints.enforce(BoxConstraints(
+    final effectiveConstraints = constraints.enforce(const BoxConstraints(
       minHeight: 40,
       maxHeight: 80,
       maxWidth: 400,
@@ -207,13 +209,13 @@ class RenderSlideButton extends RenderBox {
     final canvas = context.canvas;
     final value = math.max(0.0, slideController.value);
     final t = interpolate(inputMax: size.width)(value);
-    final bounds = RRect.fromRectAndRadius(offset & size, Radius.circular(18));
+    final bounds = RRect.fromRectAndRadius(offset & size, const Radius.circular(18));
 
     canvas.clipRRect(bounds);
 
     canvas.drawRRect(
       bounds,
-      Paint()..color = Color.lerp(Color(0xFF141224), Color(0xFF5A01CB), Curves.decelerate.transform(t))!,
+      Paint()..color = Color.lerp(const Color(0xFF141224), const Color(0xFF5A01CB), Curves.decelerate.transform(t))!,
     );
 
     final textColor = Colors.white.withOpacity(1 - Curves.decelerate.transform(t));

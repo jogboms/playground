@@ -8,6 +8,8 @@ import 'package:playground/extensions.dart';
 import 'package:playground/interpolate.dart';
 
 class GraphWithSelectorII extends StatefulWidget {
+  const GraphWithSelectorII({Key? key}) : super(key: key);
+
   @override
   _GraphWithSelectorIIState createState() => _GraphWithSelectorIIState();
 }
@@ -18,9 +20,9 @@ class _GraphWithSelectorIIState extends State<GraphWithSelectorII> with TickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF121A2A),
+      backgroundColor: const Color(0xFF121A2A),
       body: DecoratedBox(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF243455), Color(0xFF121A2A)],
             begin: Alignment.topCenter,
@@ -39,8 +41,8 @@ class _GraphWithSelectorIIState extends State<GraphWithSelectorII> with TickerPr
 }
 
 class GraphView extends ScrollView {
-  GraphView({Key? key, required this.values})
-      : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
+  const GraphView({Key? key, required this.values})
+      : super(key: key, scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics());
 
   final List<double> values;
 
@@ -196,9 +198,9 @@ class RenderGraphViewWidget extends RenderSliver {
         height: viewportRect.height + (itemExtent / 1.25),
       );
       canvas.drawRRect(
-        RRect.fromRectAndRadius(selectorBounds, Radius.circular(itemExtent / 8)),
+        RRect.fromRectAndRadius(selectorBounds, const Radius.circular(itemExtent / 8)),
         Paint()
-          ..shader = LinearGradient(
+          ..shader = const LinearGradient(
             colors: selectorGradient,
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -217,7 +219,7 @@ class RenderGraphViewWidget extends RenderSliver {
     // Draw curved path
     const strokeWidth = 6.0;
     fillPathBounds = curvedPath.getBounds();
-    final curveGradientShader = LinearGradient(colors: strokeGradient).createShader(fillPathBounds);
+    final curveGradientShader = const LinearGradient(colors: strokeGradient).createShader(fillPathBounds);
     canvas.drawPath(
       curvedPath,
       Paint()
@@ -243,7 +245,7 @@ class RenderGraphViewWidget extends RenderSliver {
     // Draw labels
     for (var i = 0; i < _itemCount; i++) {
       final textBounds = canvas.drawText(
-        '${(i + 1).toString().padLeft(2, "0")}',
+        (i + 1).toString().padLeft(2, '0'),
         center: Offset(offsets[i].dx, viewportRect.bottom - (labelHeight / 2)),
         style: TextStyle(
           fontSize: labelHeight / (_selectedIndex == i ? 1.5 : 2.125),
@@ -262,13 +264,13 @@ class RenderGraphViewWidget extends RenderSliver {
       super.debugPaint(context, offset);
 
       if (debugPaintSizeEnabled) {
-        debugBounds.forEach((bounds) {
+        for (final bounds in debugBounds) {
           context.canvas.drawRect(
               bounds,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));
-        });
+        }
       }
 
       return true;
@@ -278,7 +280,7 @@ class RenderGraphViewWidget extends RenderSliver {
   Path _createDashedLinePath(Offset offset, double length, double dashLength) {
     final path = Path()..moveTo(offset.dx, offset.dy);
     for (var j = 0; j < (((length / (dashLength * 2)) * 2) - 1); j++) {
-      j % 2 == 0 ? (path..relativeLineTo(0, dashLength)) : (path..relativeMoveTo(0, dashLength));
+      j % 2 == 0 ? path.relativeLineTo(0, dashLength) : path.relativeMoveTo(0, dashLength);
     }
     return path;
   }

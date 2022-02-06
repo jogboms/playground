@@ -8,6 +8,8 @@ import 'package:playground/extensions.dart';
 import 'package:playground/interpolate.dart';
 
 class GraphWithSelector extends StatefulWidget {
+  const GraphWithSelector({Key? key}) : super(key: key);
+
   @override
   _GraphWithSelectorState createState() => _GraphWithSelectorState();
 }
@@ -32,8 +34,8 @@ class _GraphWithSelectorState extends State<GraphWithSelector> with TickerProvid
 }
 
 class GraphView extends ScrollView {
-  GraphView({Key? key, required this.vsync, required this.values})
-      : super(key: key, scrollDirection: Axis.horizontal, physics: BouncingScrollPhysics());
+  const GraphView({Key? key, required this.vsync, required this.values})
+      : super(key: key, scrollDirection: Axis.horizontal, physics: const BouncingScrollPhysics());
 
   final TickerProvider vsync;
   final List<double> values;
@@ -74,7 +76,7 @@ class RenderGraphViewWidget extends RenderSliver {
     required TickerProvider vsync,
     required List<double> values,
     required this.controller,
-  })   : _vsync = vsync,
+  })  : _vsync = vsync,
         _values = values,
         _maxValue = values.reduce(math.max) {
     tap = TapGestureRecognizer()..onTapDown = _onTapDown;
@@ -136,7 +138,7 @@ class RenderGraphViewWidget extends RenderSliver {
     animation = AnimationController(
       value: 0.0,
       vsync: _vsync,
-      duration: Duration(milliseconds: 10000),
+      duration: const Duration(milliseconds: 10000),
     )
       ..addListener(markNeedsPaint)
       ..forward();
@@ -144,7 +146,7 @@ class RenderGraphViewWidget extends RenderSliver {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       controller.animateTo(
         500, // You can do some calculations here using the geometry
-        duration: Duration(milliseconds: 10000),
+        duration: const Duration(milliseconds: 10000),
         curve: Curves.linearToEaseOut,
       );
     });
@@ -237,7 +239,7 @@ class RenderGraphViewWidget extends RenderSliver {
     canvas.drawPath(
       fillPath,
       Paint()
-        ..shader = LinearGradient(
+        ..shader = const LinearGradient(
           colors: [shadowColor, Color(0x00000000)],
           stops: [0.6, 1.0],
           begin: Alignment.topCenter,
@@ -281,13 +283,13 @@ class RenderGraphViewWidget extends RenderSliver {
       super.debugPaint(context, offset);
 
       if (debugPaintSizeEnabled) {
-        debugBounds.forEach((bounds) {
+        for (final bounds in debugBounds) {
           context.canvas.drawRect(
               bounds!,
               Paint()
                 ..style = PaintingStyle.stroke
                 ..color = const Color(0xFF00FFFF));
-        });
+        }
       }
 
       return true;

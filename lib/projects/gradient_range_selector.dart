@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,11 +8,13 @@ const double maxValue = 500;
 final ValueNotifier<Pair<double, double>> valueNotifier = ValueNotifier(const Pair(0, maxValue));
 
 class GradientRangeSelector extends StatelessWidget {
+  const GradientRangeSelector({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -23,7 +24,7 @@ class GradientRangeSelector extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      '${value.a.toStringAsFixed(1)}',
+                      value.a.toStringAsFixed(1),
                       style: Theme.of(context).textTheme.headline2!.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
@@ -35,7 +36,7 @@ class GradientRangeSelector extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      '${value.b.toStringAsFixed(1)}',
+                      value.b.toStringAsFixed(1),
                       style: Theme.of(context).textTheme.headline3!.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
@@ -43,7 +44,7 @@ class GradientRangeSelector extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             RangeSlider(
               lowerValue: valueNotifier.value.a,
               upperValue: valueNotifier.value.b,
@@ -328,7 +329,7 @@ class _RenderRangeSlider extends RenderBox {
   void paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
 
-    final calculatedSize = size - Offset(_thumbRadius * 2, 0) as Size;
+    final calculatedSize = size - const Offset(_thumbRadius * 2, 0) as Size;
     _trackRect = offset.translate(_thumbRadius, _thumbRadius / 2) & calculatedSize.copyWith(height: _trackRadius * 2);
     final selectedRect = Rect.fromLTRB(
       _trackRect.left + _lowerValue! * _trackRect.width,
@@ -382,7 +383,7 @@ class _RenderRangeSlider extends RenderBox {
 
   void _paintTrack(Canvas canvas, Rect rect, Rect selectedRect) {
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, Radius.circular(16.0)),
+      RRect.fromRectAndRadius(rect, const Radius.circular(16.0)),
       Paint()..color = Colors.grey.withOpacity(.35),
     );
 
