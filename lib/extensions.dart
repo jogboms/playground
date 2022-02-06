@@ -20,7 +20,8 @@ extension DoubleX on double {
   }
 }
 
-const fullAngle = math.pi * 2.0;
+const fullAngle = 360.0;
+const fullAngleInRadians = math.pi * 2.0;
 
 extension NumX<T extends num> on T {
   double get degrees => (this * 180.0) / math.pi;
@@ -29,13 +30,13 @@ extension NumX<T extends num> on T {
 
   T normalize(T max) => (this % max + max) % max as T;
 
-  double get normalizeAngle => normalize(fullAngle as T).toDouble();
+  double get normalizeAngle => normalize(fullAngleInRadians as T).toDouble();
 
   double subtractAngle(T diff) => (this - diff).normalizeAngle;
 
   double addAngle(T diff) => (this + diff).normalizeAngle;
 
-  double shiftAngle(T shift) => toDouble() + ((-this - shift) / fullAngle).ceil() * fullAngle;
+  double shiftAngle(T shift) => toDouble() + ((-this - shift) / fullAngleInRadians).ceil() * fullAngleInRadians;
 
   bool between(double min, double max) => this <= max && this >= min;
 }
