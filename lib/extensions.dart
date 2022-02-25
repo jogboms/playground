@@ -2,10 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
 
-extension DoubleX on double {
-  double discretize(int divisions) {
-    return (this * divisions).round() / divisions;
-  }
+extension DoubleExtensions on double {
+  double discretize(int divisions) => (this * divisions).round() / divisions;
 
   double lerp(double min, double max) {
     assert(this >= 0.0);
@@ -23,7 +21,7 @@ extension DoubleX on double {
 const fullAngle = 360.0;
 const fullAngleInRadians = math.pi * 2.0;
 
-extension NumX<T extends num> on T {
+extension NumExtensions<T extends num> on T {
   double get degrees => (this * 180.0) / math.pi;
 
   double get radians => (this * math.pi) / 180.0;
@@ -41,41 +39,40 @@ extension NumX<T extends num> on T {
   bool between(double min, double max) => this <= max && this >= min;
 }
 
-extension SizeX on Size {
+extension SizeExtensions on Size {
   double get radius => shortestSide / 2;
 
-  Size copyWith({double? width, double? height}) {
-    return Size(width ?? this.width, height ?? this.height);
-  }
+  Size copyWith({double? width, double? height}) => Size(width ?? this.width, height ?? this.height);
 }
 
-extension RectX on Rect {
-  double get radius => shortestSide / 2;
+extension RectExtensions on Rect {
+  double get radius => size.radius;
 
-  Rect shrink({double top = 0.0, double left = 0.0, double right = 0.0, double bottom = 0.0}) {
-    return Rect.fromLTRB(this.left + left, this.top + top, this.right - right, this.bottom - bottom);
-  }
+  Rect shrink({double top = 0.0, double left = 0.0, double right = 0.0, double bottom = 0.0}) =>
+      Rect.fromLTRB(this.left + left, this.top + top, this.right - right, this.bottom - bottom);
 }
 
-extension OffsetX on Offset {
-  Offset shift(double delta) {
-    return translate(delta, delta);
-  }
+extension OffsetExtensions on Offset {
+  Offset shift(double delta) => translate(delta, delta);
+
+  Offset translateAlong(double angleInRadians, double magnitude) =>
+      this + Offset.fromDirection(angleInRadians, magnitude);
 }
 
-extension CanvasX on Canvas {
-  Rect drawText(
-    String text, {
-    required Offset center,
-    TextStyle style = const TextStyle(fontSize: 14.0, color: Color(0xFF333333), fontWeight: FontWeight.normal),
-  }) {
-    final textPainter = TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.ltr)
-      ..text = TextSpan(text: text, style: style)
-      ..layout();
-    final bounds = (center & textPainter.size).translate(-textPainter.width / 2, -textPainter.height / 2);
-    textPainter.paint(this, bounds.topLeft);
-    return bounds;
-  }
+extension CanvasExtensions on Canvas {
+  static const TextStyle _defaultTextStyle =
+      TextStyle(fontSize: 14, color: Color(0xFF333333), fontWeight: FontWeight.normal);
+
+  TextLayoutResult layoutText(String text, {TextStyle style = _defaultTextStyle, double maxWidth = double.infinity}) =>
+      TextLayoutResult(
+          canvas: this,
+          painter: TextPainter(textAlign: TextAlign.center, textDirection: TextDirection.ltr)
+            ..text = TextSpan(text: text, style: style)
+            ..layout(maxWidth: maxWidth));
+
+  Rect drawText(String text,
+          {required Offset center, TextStyle style = _defaultTextStyle, double maxWidth = double.infinity}) =>
+      layoutText(text, style: style, maxWidth: maxWidth).paint(center);
 }
 
 double toAngle(Offset position, Offset center) => (position - center).direction;
@@ -87,9 +84,7 @@ double normalizeAngle(double angle) {
   return (angle % totalAngle + totalAngle) % totalAngle;
 }
 
-double random(double min, double max) {
-  return math.max(math.min(max, math.Random().nextDouble() * max), min);
-}
+double random(double min, double max) => math.max(math.min(max, math.Random().nextDouble() * max), min);
 
 class Pair<A, B> {
   const Pair(this.a, this.b);
@@ -98,8 +93,8 @@ class Pair<A, B> {
   final B b;
 }
 
-class Pair2<A, B, C> {
-  const Pair2(this.a, this.b, this.c);
+class Triple<A, B, C> {
+  const Triple(this.a, this.b, this.c);
 
   final A a;
   final B b;
@@ -111,6 +106,23 @@ class Range<T> {
 
   final T start;
   final T end;
+}
+
+class TextLayoutResult {
+  const TextLayoutResult({required Canvas canvas, required TextPainter painter})
+      : _canvas = canvas,
+        _painter = painter;
+
+  final Canvas _canvas;
+  final TextPainter _painter;
+
+  Size get size => _painter.size;
+
+  Rect paint(Offset center) {
+    final Rect bounds = Rect.fromCenter(center: center, width: size.width, height: size.height);
+    _painter.paint(_canvas, bounds.topLeft);
+    return bounds;
+  }
 }
 
 mixin RenderBoxDebugBounds on RenderBox {

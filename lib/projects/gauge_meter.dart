@@ -23,10 +23,10 @@ class _GaugeMeterState extends State<GaugeMeter> {
             min: 0,
             max: 100,
             divisions: const [
-              Pair2(0.33, 'Bad', Color(0xFFFF524F)),
-              Pair2(0.56, 'Average', Color(0xFFFAD64C)),
-              Pair2(0.8, 'Good', Color(0xFFB2FF59)),
-              Pair2(1.0, 'Excellent', Color(0xFF51AD54)),
+              Triple(0.33, 'Bad', Color(0xFFFF524F)),
+              Triple(0.56, 'Average', Color(0xFFFAD64C)),
+              Triple(0.8, 'Good', Color(0xFFB2FF59)),
+              Triple(1.0, 'Excellent', Color(0xFF51AD54)),
             ],
             onChanged: (value) {
               // print(value);
@@ -53,7 +53,7 @@ class GaugeMeterWidget extends LeafRenderObjectWidget {
   final double value;
   final double min;
   final double max;
-  final List<Pair2<double, String, Color>> divisions;
+  final List<Triple<double, String, Color>> divisions;
   final ValueChanged<double>? onChanged;
 
   @override
@@ -77,7 +77,7 @@ class RenderGaugeMeter extends RenderBox {
     required double value,
     required double min,
     required double max,
-    required List<Pair2<double, String, Color>> divisions,
+    required List<Triple<double, String, Color>> divisions,
     ValueChanged<double>? onChanged,
   })  : _value = value,
         _min = min,
@@ -126,9 +126,9 @@ class RenderGaugeMeter extends RenderBox {
     markNeedsPaint();
   }
 
-  List<Pair2<double, String, Color>> _divisions;
+  List<Triple<double, String, Color>> _divisions;
 
-  set divisions(List<Pair2<double, String, Color>> divisions) {
+  set divisions(List<Triple<double, String, Color>> divisions) {
     if (divisions == _divisions) {
       return;
     }

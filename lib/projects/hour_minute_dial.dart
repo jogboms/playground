@@ -177,7 +177,6 @@ class TimeOfDayRenderBox extends RenderBox {
   @override
   void attach(covariant PipelineOwner owner) {
     super.attach(owner);
-
     _controller = AnimationController(vsync: vsync);
     _controller.addListener(() {
       _selectedCenter = _animation.value;

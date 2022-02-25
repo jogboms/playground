@@ -11,6 +11,7 @@ import 'projects/gradient_range_selector.dart';
 import 'projects/graph_with_selector.dart';
 import 'projects/graph_with_selector_2.dart';
 import 'projects/hour_minute_dial.dart';
+import 'projects/life_diy.dart';
 import 'projects/light_gradient_selector.dart';
 import 'projects/measure_slider.dart';
 import 'projects/more_balls_generator.dart';
@@ -30,6 +31,7 @@ class Projects extends StatelessWidget {
     MapEntry<String, WidgetBuilder>('Measure Slider', (_) => const MeasureSlider()),
     MapEntry<String, WidgetBuilder>('Progress Dial', (_) => const ProgressDial()),
     MapEntry<String, WidgetBuilder>('Gauge Meter', (_) => const GaugeMeter()),
+    MapEntry<String, WidgetBuilder>('Life DIY', (_) => const LifeDIY()),
     MapEntry<String, WidgetBuilder>('Circular Color Picker', (_) => const CircularColorPicker()),
     MapEntry<String, WidgetBuilder>('Circular Color Slider Picker', (_) => const CircularColorSliderPicker()),
     MapEntry<String, WidgetBuilder>('Studio Pro', (_) => const StudioPro()),
